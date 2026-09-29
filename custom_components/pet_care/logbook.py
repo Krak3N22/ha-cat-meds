@@ -39,7 +39,7 @@ def async_describe_events(
         [str, str, Callable[[Event], dict[str, Any]]], None
     ],
 ) -> None:
-    """Describe Cat Meds events in the logbook."""
+    """Describe Pet Care events in the logbook."""
     lang = "sv" if hass.config.language.startswith("sv") else "en"
     messages = MESSAGES[lang]
 
@@ -55,7 +55,7 @@ def async_describe_events(
         data = event.data
         template = messages["dose_by" if data.get("user") else "dose"]
         return {
-            LOGBOOK_ENTRY_NAME: data["cat"],
+            LOGBOOK_ENTRY_NAME: data["pet"],
             LOGBOOK_ENTRY_MESSAGE: template.format(**data),
             LOGBOOK_ENTRY_ENTITY_ID: _entity_id("button", data, "give_dose"),
         }
@@ -68,7 +68,7 @@ def async_describe_events(
             value = value.replace(".", ",")
         template = messages["measurement_by" if data.get("user") else "measurement"]
         return {
-            LOGBOOK_ENTRY_NAME: data["cat"],
+            LOGBOOK_ENTRY_NAME: data["pet"],
             LOGBOOK_ENTRY_MESSAGE: template.format(
                 **{**data, "value": value, "unit": data.get("unit", "")}
             ).replace("  ", " ").strip(),

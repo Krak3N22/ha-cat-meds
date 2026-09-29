@@ -1,0 +1,13 @@
+{
+  "domain": "pet_care",
+  "name": "Pet Care",
+  "codeowners": ["@Krak3N22"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Krak3N22/ha-pet-care",
+  "integration_type": "hub",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/Krak3N22/ha-pet-care/issues",
+  "requirements": [],
+  "version": "0.2.0"
+}

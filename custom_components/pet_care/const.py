@@ -1,8 +1,8 @@
-"""Constants for Cat Meds."""
+"""Constants for Pet Care."""
 
-DOMAIN = "cat_meds"
+DOMAIN = "pet_care"
 
-# Subentry types: one per thing we track for a cat.
+# Subentry types: one per thing we track for a pet.
 SUBENTRY_DOSE = "dose"  # medication given in doses, e.g. an inhaler
 SUBENTRY_MEASUREMENT = "measurement"  # a logged value, e.g. blood glucose
 

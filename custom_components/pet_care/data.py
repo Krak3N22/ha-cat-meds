@@ -1,4 +1,4 @@
-"""Persistent data for one cat: event log and stock per tracked item."""
+"""Persistent data for one pet: event log and stock per tracked item."""
 
 from __future__ import annotations
 
@@ -47,8 +47,8 @@ class ItemStatus:
     stock: float | None
 
 
-class CatMedsData:
-    """Event log and stock for all items of one cat (config entry)."""
+class PetCareData:
+    """Event log and stock for all items of one pet (config entry)."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.hass = hass
@@ -137,7 +137,7 @@ class CatMedsData:
         self.hass.bus.async_fire(
             EVENT_DOSE_GIVEN,
             {
-                "cat": self.entry.title,
+                "pet": self.entry.title,
                 "subentry_id": subentry.subentry_id,
                 "item": subentry.title,
                 "user": event["user"],
@@ -155,7 +155,7 @@ class CatMedsData:
         self.hass.bus.async_fire(
             EVENT_MEASUREMENT_LOGGED,
             {
-                "cat": self.entry.title,
+                "pet": self.entry.title,
                 "subentry_id": subentry.subentry_id,
                 "item": subentry.title,
                 "value": value,

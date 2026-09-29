@@ -1,4 +1,4 @@
-"""Cat Meds: track medication, measurements and stock for your cats."""
+"""Pet Care: track medication, measurements and stock for your pets."""
 
 from __future__ import annotations
 
@@ -10,16 +10,16 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.storage import Store
 
-from .data import STORAGE_VERSION, CatMedsData, storage_key
+from .data import STORAGE_VERSION, PetCareData, storage_key
 
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.BUTTON, Platform.NUMBER, Platform.SENSOR]
 
-type CatMedsConfigEntry = ConfigEntry[CatMedsData]
+type PetCareConfigEntry = ConfigEntry[PetCareData]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: CatMedsConfigEntry) -> bool:
-    """Set up one cat."""
-    data = CatMedsData(hass, entry)
+async def async_setup_entry(hass: HomeAssistant, entry: PetCareConfigEntry) -> bool:
+    """Set up one pet."""
+    data = PetCareData(hass, entry)
     await data.async_load()
     entry.runtime_data = data
 
@@ -34,16 +34,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: CatMedsConfigEntry) -> b
     return True
 
 
-async def _async_reload(hass: HomeAssistant, entry: CatMedsConfigEntry) -> None:
+async def _async_reload(hass: HomeAssistant, entry: PetCareConfigEntry) -> None:
     """Reload when medications/measurements are added, changed or removed."""
     await hass.config_entries.async_reload(entry.entry_id)
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: CatMedsConfigEntry) -> bool:
-    """Unload a cat."""
+async def async_unload_entry(hass: HomeAssistant, entry: PetCareConfigEntry) -> bool:
+    """Unload a pet."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Delete stored history when a cat is removed."""
+    """Delete stored history when a pet is removed."""
     await Store(hass, STORAGE_VERSION, storage_key(entry.entry_id)).async_remove()

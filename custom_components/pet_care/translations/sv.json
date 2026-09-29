@@ -2,10 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "title": "Lägg till katt",
-        "description": "Lägg till mediciner och mätningar på katten efteråt.",
+        "title": "Lägg till djur",
+        "description": "Lägg till mediciner och mätningar på djuret efteråt.",
         "data": {
-          "name": "Kattens namn"
+          "name": "Djurets namn"
         }
       }
     }

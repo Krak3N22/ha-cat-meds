@@ -6,14 +6,14 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import CatMedsConfigEntry
+from . import PetCareConfigEntry
 from .const import SUBENTRY_DOSE
-from .entity import CatMedsEntity
+from .entity import PetCareEntity
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: CatMedsConfigEntry,
+    entry: PetCareConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up buttons."""
@@ -25,7 +25,7 @@ async def async_setup_entry(
             )
 
 
-class GiveDoseButton(CatMedsEntity, ButtonEntity):
+class GiveDoseButton(PetCareEntity, ButtonEntity):
     """Press when a dose has been given."""
 
     _attr_icon = "mdi:medication"

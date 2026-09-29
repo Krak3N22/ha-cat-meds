@@ -1,4 +1,4 @@
-"""Config flow: one entry per cat, one subentry per medication/measurement."""
+"""Config flow: one entry per pet, one subentry per medication/measurement."""
 
 from __future__ import annotations
 
@@ -45,8 +45,8 @@ def _number(minimum: float, maximum: float, step: float) -> NumberSelector:
     )
 
 
-class CatMedsConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Add a cat."""
+class PetCareConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Add a pet."""
 
     VERSION = 1
 

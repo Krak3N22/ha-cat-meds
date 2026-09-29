@@ -1,4 +1,4 @@
-"""Base entity for Cat Meds."""
+"""Base entity for Pet Care."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
 
 from .const import CONF_INTERVAL_DAYS, CONF_TIMES, DOMAIN, signal_update
-from .data import CatMedsData, ItemStatus
+from .data import PetCareData, ItemStatus
 
 
 def has_schedule(subentry: ConfigSubentry) -> bool:
@@ -16,14 +16,14 @@ def has_schedule(subentry: ConfigSubentry) -> bool:
     return bool(subentry.data.get(CONF_TIMES) or subentry.data.get(CONF_INTERVAL_DAYS))
 
 
-class CatMedsEntity(Entity):
-    """An entity belonging to one tracked item of one cat."""
+class PetCareEntity(Entity):
+    """An entity belonging to one tracked item of one pet."""
 
     _attr_has_entity_name = True
     _attr_should_poll = False
 
     def __init__(self, entry: ConfigEntry, subentry: ConfigSubentry, key: str) -> None:
-        self._data: CatMedsData = entry.runtime_data
+        self._data: PetCareData = entry.runtime_data
         self._subentry = subentry
         self._attr_unique_id = f"{subentry.subentry_id}_{key}"
         self._attr_translation_key = key
@@ -31,8 +31,8 @@ class CatMedsEntity(Entity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
-            manufacturer="Cat Meds",
-            model="Cat",
+            manufacturer="Pet Care",
+            model="Pet",
         )
 
     @property

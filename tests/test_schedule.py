@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 # Load schedule.py directly so the tests don't import Home Assistant.
-_path = Path(__file__).parents[1] / "custom_components/cat_meds/schedule.py"
+_path = Path(__file__).parents[1] / "custom_components/pet_care/schedule.py"
 _spec = importlib.util.spec_from_file_location("schedule", _path)
 schedule = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(schedule)

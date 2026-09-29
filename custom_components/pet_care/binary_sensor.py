@@ -9,13 +9,13 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import CatMedsConfigEntry
-from .entity import CatMedsEntity, has_schedule
+from . import PetCareConfigEntry
+from .entity import PetCareEntity, has_schedule
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: CatMedsConfigEntry,
+    entry: PetCareConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up overdue sensors."""
@@ -27,7 +27,7 @@ async def async_setup_entry(
             )
 
 
-class OverdueSensor(CatMedsEntity, BinarySensorEntity):
+class OverdueSensor(PetCareEntity, BinarySensorEntity):
     """On when the item is due and has not been done."""
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM

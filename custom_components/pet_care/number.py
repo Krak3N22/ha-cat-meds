@@ -6,14 +6,14 @@ from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import CatMedsConfigEntry
+from . import PetCareConfigEntry
 from .const import CONF_TRACK_STOCK, CONF_UNIT, SUBENTRY_DOSE, SUBENTRY_MEASUREMENT
-from .entity import CatMedsEntity
+from .entity import PetCareEntity
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: CatMedsConfigEntry,
+    entry: PetCareConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up numbers."""
@@ -32,7 +32,7 @@ async def async_setup_entry(
             )
 
 
-class StockNumber(CatMedsEntity, NumberEntity):
+class StockNumber(PetCareEntity, NumberEntity):
     """How much is left. Counts down per dose; set it when restocking."""
 
     _attr_icon = "mdi:package-variant"
@@ -53,7 +53,7 @@ class StockNumber(CatMedsEntity, NumberEntity):
         await self._data.async_set_stock(self._subentry, value)
 
 
-class LogValueNumber(CatMedsEntity, NumberEntity):
+class LogValueNumber(PetCareEntity, NumberEntity):
     """Type a value here to log a new measurement."""
 
     _attr_icon = "mdi:pencil-plus"

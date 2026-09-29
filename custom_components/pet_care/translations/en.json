@@ -2,10 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "title": "Add a cat",
-        "description": "Add medications and measurements to the cat afterwards.",
+        "title": "Add a pet",
+        "description": "Add medications and measurements to the pet afterwards.",
         "data": {
-          "name": "Cat's name"
+          "name": "Name"
         }
       }
     }

@@ -13,14 +13,14 @@ from homeassistant.components.sensor import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import CatMedsConfigEntry
+from . import PetCareConfigEntry
 from .const import CONF_UNIT, SUBENTRY_DOSE, SUBENTRY_MEASUREMENT
-from .entity import CatMedsEntity, has_schedule
+from .entity import PetCareEntity, has_schedule
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: CatMedsConfigEntry,
+    entry: PetCareConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up sensors."""
@@ -38,7 +38,7 @@ async def async_setup_entry(
         async_add_entities(entities, config_subentry_id=subentry.subentry_id)
 
 
-class LastSensor(CatMedsEntity, SensorEntity):
+class LastSensor(PetCareEntity, SensorEntity):
     """When it was last done, and by whom."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
@@ -53,7 +53,7 @@ class LastSensor(CatMedsEntity, SensorEntity):
         return {"by": self.status.last_by}
 
 
-class LastBySensor(CatMedsEntity, SensorEntity):
+class LastBySensor(PetCareEntity, SensorEntity):
     """Who did it last."""
 
     _attr_icon = "mdi:account-check"
@@ -63,7 +63,7 @@ class LastBySensor(CatMedsEntity, SensorEntity):
         return self.status.last_by
 
 
-class NextDueSensor(CatMedsEntity, SensorEntity):
+class NextDueSensor(PetCareEntity, SensorEntity):
     """When it is due next."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
@@ -74,7 +74,7 @@ class NextDueSensor(CatMedsEntity, SensorEntity):
         return self.status.next_due
 
 
-class ValueSensor(CatMedsEntity, SensorEntity):
+class ValueSensor(PetCareEntity, SensorEntity):
     """Last measured value, with history graph."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
