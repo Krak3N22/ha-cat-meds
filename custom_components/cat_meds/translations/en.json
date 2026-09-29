@@ -1,0 +1,141 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add a cat",
+        "description": "Add medications and measurements to the cat afterwards.",
+        "data": {
+          "name": "Cat's name"
+        }
+      }
+    }
+  },
+  "config_subentries": {
+    "dose": {
+      "entry_type": "Medication",
+      "initiate_flow": {
+        "user": "Add medication",
+        "reconfigure": "Edit"
+      },
+      "step": {
+        "user": {
+          "title": "Medication",
+          "data": {
+            "name": "Name",
+            "dose_amount": "Amount per dose",
+            "unit": "Unit",
+            "times": "Times of day",
+            "interval_days": "Or every N days",
+            "track_stock": "Track stock",
+            "stock": "Current stock"
+          },
+          "data_description": {
+            "times": "Comma separated, e.g. 08:00, 20:00. Leave empty to use an interval instead.",
+            "interval_days": "Used when no times are set. 0 = no schedule.",
+            "unit": "E.g. puffs, tablets, mmol/L.",
+            "stock": "How many units you have right now."
+          }
+        },
+        "reconfigure": {
+          "title": "Medication",
+          "data": {
+            "name": "Name",
+            "dose_amount": "Amount per dose",
+            "unit": "Unit",
+            "times": "Times of day",
+            "interval_days": "Or every N days",
+            "track_stock": "Track stock"
+          },
+          "data_description": {
+            "times": "Comma separated, e.g. 08:00, 20:00. Leave empty to use an interval instead.",
+            "interval_days": "Used when no times are set. 0 = no schedule.",
+            "unit": "E.g. puffs, tablets, mmol/L."
+          }
+        }
+      },
+      "error": {
+        "invalid_times": "Use HH:MM, comma separated."
+      },
+      "abort": {
+        "reconfigure_successful": "Saved."
+      }
+    },
+    "measurement": {
+      "entry_type": "Measurement",
+      "initiate_flow": {
+        "user": "Add measurement",
+        "reconfigure": "Edit"
+      },
+      "step": {
+        "user": {
+          "title": "Measurement",
+          "data": {
+            "name": "Name",
+            "unit": "Unit",
+            "times": "Times of day",
+            "interval_days": "Or every N days"
+          },
+          "data_description": {
+            "unit": "E.g. puffs, tablets, mmol/L.",
+            "times": "Comma separated, e.g. 08:00, 20:00. Leave empty to use an interval instead.",
+            "interval_days": "Used when no times are set. 0 = no schedule."
+          }
+        },
+        "reconfigure": {
+          "title": "Measurement",
+          "data": {
+            "name": "Name",
+            "unit": "Unit",
+            "times": "Times of day",
+            "interval_days": "Or every N days"
+          },
+          "data_description": {
+            "unit": "E.g. puffs, tablets, mmol/L.",
+            "times": "Comma separated, e.g. 08:00, 20:00. Leave empty to use an interval instead.",
+            "interval_days": "Used when no times are set. 0 = no schedule."
+          }
+        }
+      },
+      "error": {
+        "invalid_times": "Use HH:MM, comma separated."
+      },
+      "abort": {
+        "reconfigure_successful": "Saved."
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "overdue": {
+        "name": "{item} overdue"
+      }
+    },
+    "button": {
+      "give_dose": {
+        "name": "{item}: give dose"
+      }
+    },
+    "number": {
+      "stock": {
+        "name": "{item} stock"
+      },
+      "log_value": {
+        "name": "{item}: log value"
+      }
+    },
+    "sensor": {
+      "last_given": {
+        "name": "{item} last given"
+      },
+      "last_measured": {
+        "name": "{item} last measured"
+      },
+      "next_due": {
+        "name": "{item} next due"
+      },
+      "value": {
+        "name": "{item}"
+      }
+    }
+  }
+}

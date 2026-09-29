@@ -1,0 +1,13 @@
+{
+  "domain": "cat_meds",
+  "name": "Cat Meds",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/OWNER/ha-cat-meds",
+  "integration_type": "hub",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/OWNER/ha-cat-meds/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

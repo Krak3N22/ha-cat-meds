@@ -1,0 +1,141 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lägg till katt",
+        "description": "Lägg till mediciner och mätningar på katten efteråt.",
+        "data": {
+          "name": "Kattens namn"
+        }
+      }
+    }
+  },
+  "config_subentries": {
+    "dose": {
+      "entry_type": "Medicin",
+      "initiate_flow": {
+        "user": "Lägg till medicin",
+        "reconfigure": "Ändra"
+      },
+      "step": {
+        "user": {
+          "title": "Medicin",
+          "data": {
+            "name": "Namn",
+            "dose_amount": "Mängd per dos",
+            "unit": "Enhet",
+            "times": "Klockslag",
+            "interval_days": "Eller var N:e dag",
+            "track_stock": "Håll koll på lager",
+            "stock": "Nuvarande lager"
+          },
+          "data_description": {
+            "times": "Kommaseparerat, t.ex. 08:00, 20:00. Lämna tomt för att använda intervall istället.",
+            "interval_days": "Används om inga klockslag anges. 0 = inget schema.",
+            "unit": "T.ex. puffar, tabletter, mmol/L.",
+            "stock": "Hur många enheter ni har just nu."
+          }
+        },
+        "reconfigure": {
+          "title": "Medicin",
+          "data": {
+            "name": "Namn",
+            "dose_amount": "Mängd per dos",
+            "unit": "Enhet",
+            "times": "Klockslag",
+            "interval_days": "Eller var N:e dag",
+            "track_stock": "Håll koll på lager"
+          },
+          "data_description": {
+            "times": "Kommaseparerat, t.ex. 08:00, 20:00. Lämna tomt för att använda intervall istället.",
+            "interval_days": "Används om inga klockslag anges. 0 = inget schema.",
+            "unit": "T.ex. puffar, tabletter, mmol/L."
+          }
+        }
+      },
+      "error": {
+        "invalid_times": "Använd HH:MM, kommaseparerat."
+      },
+      "abort": {
+        "reconfigure_successful": "Sparat."
+      }
+    },
+    "measurement": {
+      "entry_type": "Mätning",
+      "initiate_flow": {
+        "user": "Lägg till mätning",
+        "reconfigure": "Ändra"
+      },
+      "step": {
+        "user": {
+          "title": "Mätning",
+          "data": {
+            "name": "Namn",
+            "unit": "Enhet",
+            "times": "Klockslag",
+            "interval_days": "Eller var N:e dag"
+          },
+          "data_description": {
+            "unit": "T.ex. puffar, tabletter, mmol/L.",
+            "times": "Kommaseparerat, t.ex. 08:00, 20:00. Lämna tomt för att använda intervall istället.",
+            "interval_days": "Används om inga klockslag anges. 0 = inget schema."
+          }
+        },
+        "reconfigure": {
+          "title": "Mätning",
+          "data": {
+            "name": "Namn",
+            "unit": "Enhet",
+            "times": "Klockslag",
+            "interval_days": "Eller var N:e dag"
+          },
+          "data_description": {
+            "unit": "T.ex. puffar, tabletter, mmol/L.",
+            "times": "Kommaseparerat, t.ex. 08:00, 20:00. Lämna tomt för att använda intervall istället.",
+            "interval_days": "Används om inga klockslag anges. 0 = inget schema."
+          }
+        }
+      },
+      "error": {
+        "invalid_times": "Använd HH:MM, kommaseparerat."
+      },
+      "abort": {
+        "reconfigure_successful": "Sparat."
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "overdue": {
+        "name": "{item} försenad"
+      }
+    },
+    "button": {
+      "give_dose": {
+        "name": "{item}: ge dos"
+      }
+    },
+    "number": {
+      "stock": {
+        "name": "{item} i lager"
+      },
+      "log_value": {
+        "name": "{item}: registrera värde"
+      }
+    },
+    "sensor": {
+      "last_given": {
+        "name": "{item} senast given"
+      },
+      "last_measured": {
+        "name": "{item} senast mätt"
+      },
+      "next_due": {
+        "name": "{item} nästa gång"
+      },
+      "value": {
+        "name": "{item}"
+      }
+    }
+  }
+}
