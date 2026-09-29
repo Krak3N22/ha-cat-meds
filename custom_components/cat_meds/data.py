@@ -19,6 +19,7 @@ from .const import (
     CONF_STOCK,
     CONF_TIMES,
     CONF_TRACK_STOCK,
+    CONF_UNIT,
     DOMAIN,
     EVENT_DOSE_GIVEN,
     EVENT_MEASUREMENT_LOGGED,
@@ -135,7 +136,12 @@ class CatMedsData:
         await self._async_save()
         self.hass.bus.async_fire(
             EVENT_DOSE_GIVEN,
-            {"cat": self.entry.title, "item": subentry.title, "user": event["user"]},
+            {
+                "cat": self.entry.title,
+                "subentry_id": subentry.subentry_id,
+                "item": subentry.title,
+                "user": event["user"],
+            },
             context=context,
         )
         self.async_notify()
@@ -150,8 +156,10 @@ class CatMedsData:
             EVENT_MEASUREMENT_LOGGED,
             {
                 "cat": self.entry.title,
+                "subentry_id": subentry.subentry_id,
                 "item": subentry.title,
                 "value": value,
+                "unit": subentry.data.get(CONF_UNIT) or "",
                 "user": event["user"],
             },
             context=context,
