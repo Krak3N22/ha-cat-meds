@@ -127,8 +127,14 @@
       "last_given": {
         "name": "{item} last given"
       },
+      "last_given_by": {
+        "name": "{item} last given by"
+      },
       "last_measured": {
         "name": "{item} last measured"
+      },
+      "last_measured_by": {
+        "name": "{item} last measured by"
       },
       "next_due": {
         "name": "{item} next due"

@@ -28,8 +28,10 @@ async def async_setup_entry(
         entities: list[SensorEntity] = []
         if subentry.subentry_type == SUBENTRY_DOSE:
             entities.append(LastSensor(entry, subentry, "last_given"))
+            entities.append(LastBySensor(entry, subentry, "last_given_by"))
         elif subentry.subentry_type == SUBENTRY_MEASUREMENT:
             entities.append(LastSensor(entry, subentry, "last_measured"))
+            entities.append(LastBySensor(entry, subentry, "last_measured_by"))
             entities.append(ValueSensor(entry, subentry, "value"))
         if has_schedule(subentry):
             entities.append(NextDueSensor(entry, subentry, "next_due"))
@@ -49,6 +51,16 @@ class LastSensor(CatMedsEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {"by": self.status.last_by}
+
+
+class LastBySensor(CatMedsEntity, SensorEntity):
+    """Who did it last."""
+
+    _attr_icon = "mdi:account-check"
+
+    @property
+    def native_value(self) -> str | None:
+        return self.status.last_by
 
 
 class NextDueSensor(CatMedsEntity, SensorEntity):
