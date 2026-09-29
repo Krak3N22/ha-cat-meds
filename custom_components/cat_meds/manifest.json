@@ -1,13 +1,13 @@
 {
   "domain": "cat_meds",
   "name": "Cat Meds",
-  "codeowners": [],
+  "codeowners": ["@Krak3N22"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/OWNER/ha-cat-meds",
+  "documentation": "https://github.com/Krak3N22/ha-cat-meds",
   "integration_type": "hub",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/OWNER/ha-cat-meds/issues",
+  "issue_tracker": "https://github.com/Krak3N22/ha-cat-meds/issues",
   "requirements": [],
   "version": "0.1.0"
 }
