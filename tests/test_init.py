@@ -156,6 +156,44 @@ async def test_undo_dose(hass: HomeAssistant, setup_entry: MockConfigEntry) -> N
     assert state(hass, entity_id(hass, "sensor", DOSE_ID, "last_given")) == STATE_UNKNOWN
 
 
+async def test_undo_with_empty_stock(hass: HomeAssistant, setup_entry: MockConfigEntry) -> None:
+    """A dose from an empty stock takes nothing, so undo gives nothing back."""
+    stock = entity_id(hass, "number", DOSE_ID, "stock")
+    await hass.services.async_call(
+        "number", "set_value", {"entity_id": stock, "value": 0}, blocking=True
+    )
+    await press(hass, entity_id(hass, "button", DOSE_ID, "give_dose"))
+    assert state(hass, stock) == "0.0"
+    await press(hass, entity_id(hass, "button", DOSE_ID, "undo"))
+    assert state(hass, stock) == "0.0"
+
+
+async def test_undo_dose_logged_before_amounts_were_stored(
+    hass: HomeAssistant, mock_entry: MockConfigEntry, hass_storage: dict
+) -> None:
+    """Undo of a dose from an older version gives back one dose."""
+    now = dt_util.utcnow().isoformat()
+    hass_storage[f"{DOMAIN}.{mock_entry.entry_id}"] = {
+        "version": 1,
+        "key": f"{DOMAIN}.{mock_entry.entry_id}",
+        "data": {
+            "items": {
+                DOSE_ID: {
+                    "created": now,
+                    "events": [{"ts": now, "user_id": None, "user": None}],
+                    "stock": 199.0,
+                }
+            }
+        },
+    }
+    mock_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_entry.entry_id)
+    await hass.async_block_till_done()
+
+    await press(hass, entity_id(hass, "button", DOSE_ID, "undo"))
+    assert state(hass, entity_id(hass, "number", DOSE_ID, "stock")) == "200.0"
+
+
 async def test_undo_removes_latest_logged_not_latest_time(
     hass: HomeAssistant, setup_entry: MockConfigEntry
 ) -> None:
