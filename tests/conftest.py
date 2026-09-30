@@ -80,5 +80,8 @@ def entity_id(hass: HomeAssistant, platform: str, subentry_id: str, key: str) ->
     found = er.async_get(hass).async_get_entity_id(
         platform, DOMAIN, f"{subentry_id}_{key}"
     )
-    assert found, f"{platform} {subentry_id}_{key} not found"
+    assert found, (
+        f"{platform} {subentry_id}_{key} not found among "
+        f"{[(e.domain, e.platform, e.unique_id) for e in er.async_get(hass).entities.values()]}"
+    )
     return found
