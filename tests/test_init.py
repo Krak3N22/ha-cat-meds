@@ -46,9 +46,15 @@ async def test_devices(
     hass: HomeAssistant, setup_entry: MockConfigEntry, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Each item is its own device under the pet, so no device changes subentry."""
-    devices = dr.async_get(hass)
-    pet = devices.async_get_device(identifiers={(DOMAIN, setup_entry.entry_id)})
-    inhaler = devices.async_get_device(identifiers={(DOMAIN, DOSE_ID)})
+    by_id = {
+        identifier: device
+        for device in dr.async_entries_for_config_entry(
+            dr.async_get(hass), setup_entry.entry_id
+        )
+        for (_, identifier) in device.identifiers
+    }
+    pet = by_id[setup_entry.entry_id]
+    inhaler = by_id[DOSE_ID]
     assert pet.name == "Freja"
     assert inhaler.name == "Freja Inhaler"
     assert inhaler.via_device_id == pet.id
