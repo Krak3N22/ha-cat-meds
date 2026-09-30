@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import PetCareConfigEntry
 from .const import CONF_PACK_SIZE, CONF_TRACK_STOCK, SUBENTRY_DOSE
-from .entity import PetCareEntity
+from .entity import PetCareEntity, has_schedule
 
 
 async def async_setup_entry(
@@ -20,6 +20,8 @@ async def async_setup_entry(
     """Set up buttons."""
     for subentry in entry.subentries.values():
         entities: list[ButtonEntity] = [UndoButton(entry, subentry, "undo")]
+        if has_schedule(subentry):
+            entities.append(SkipButton(entry, subentry, "skip"))
         if subentry.subentry_type == SUBENTRY_DOSE:
             entities.append(GiveDoseButton(entry, subentry, "give_dose"))
             if subentry.data.get(CONF_TRACK_STOCK) and subentry.data.get(CONF_PACK_SIZE):
@@ -45,6 +47,16 @@ class RefillButton(PetCareEntity, ButtonEntity):
     async def async_press(self) -> None:
         """Add one pack."""
         await self._data.async_refill(self._subentry, None, self._context)
+
+
+class SkipButton(PetCareEntity, ButtonEntity):
+    """Skip the due dose or measurement, e.g. when the vet paused it."""
+
+    _attr_icon = "mdi:debug-step-over"
+
+    async def async_press(self) -> None:
+        """Skip it."""
+        await self._data.async_skip(self._subentry, self._context)
 
 
 class UndoButton(PetCareEntity, ButtonEntity):

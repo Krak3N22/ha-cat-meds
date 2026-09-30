@@ -23,6 +23,7 @@ EVENT_DOSE_GIVEN = f"{DOMAIN}_dose_given"
 EVENT_MEASUREMENT_LOGGED = f"{DOMAIN}_measurement_logged"
 EVENT_UNDONE = f"{DOMAIN}_undone"
 EVENT_REFILLED = f"{DOMAIN}_refilled"
+EVENT_SKIPPED = f"{DOMAIN}_skipped"
 
 MAX_EVENTS = 200
 

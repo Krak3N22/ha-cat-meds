@@ -80,6 +80,34 @@ async def test_add_medication(hass: HomeAssistant, setup_entry: MockConfigEntry)
     assert err.value.translation_key == "no_pack_size"
 
 
+async def test_add_medication_without_schedule(
+    hass: HomeAssistant, setup_entry: MockConfigEntry
+) -> None:
+    """An as-needed medication has no due time, overdue or skip."""
+    result = await hass.config_entries.subentries.async_init(
+        (setup_entry.entry_id, SUBENTRY_DOSE), context={"source": SOURCE_USER}
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {**DOSE_INPUT, CONF_NAME: "As needed", CONF_TIMES: ""}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+
+    subentry = next(s for s in setup_entry.subentries.values() if s.title == "As needed")
+    registry = er.async_get(hass)
+    for platform, key in (("binary_sensor", "overdue"), ("sensor", "next_due"), ("button", "skip")):
+        assert not registry.async_get_entity_id(platform, DOMAIN, f"{subentry.subentry_id}_{key}")
+
+    with pytest.raises(ServiceValidationError) as err:
+        await hass.services.async_call(
+            DOMAIN,
+            "skip",
+            {"entity_id": entity_id(hass, "button", subentry.subentry_id, "give_dose")},
+            blocking=True,
+        )
+    assert err.value.translation_key == "no_schedule"
+
+
 async def test_add_medication_invalid_times(hass: HomeAssistant, setup_entry: MockConfigEntry) -> None:
     """Badly written times are rejected with an error on the field."""
     result = await hass.config_entries.subentries.async_init(

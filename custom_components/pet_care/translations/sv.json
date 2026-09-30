@@ -132,6 +132,9 @@
       "refill": {
         "name": "Fyll på"
       },
+      "skip": {
+        "name": "Hoppa över"
+      },
       "undo": {
         "name": "Ångra senaste"
       }
@@ -192,6 +195,9 @@
     },
     "no_pack_size": {
       "message": "Ange förpackningens storlek för {item}, eller en mängd."
+    },
+    "no_schedule": {
+      "message": "{item} har inget schema, så det finns inget att hoppa över."
     }
   },
   "services": {
@@ -210,6 +216,10 @@
         "force": {
           "name": "Hoppa över dubbeldosvarning",
           "description": "Logga även om en dos nyss har getts."
+        },
+        "user_id": {
+          "name": "Användare",
+          "description": "Home Assistant-användar-ID för den som gjorde det, t.ex. från en notisknapp. Standard är den som kör actionen."
         }
       }
     },
@@ -228,6 +238,10 @@
         "measured_at": {
           "name": "Mättes",
           "description": "När det mättes. Lämna tomt för nu."
+        },
+        "user_id": {
+          "name": "Användare",
+          "description": "Home Assistant-användar-ID för den som gjorde det, t.ex. från en notisknapp. Standard är den som kör actionen."
         }
       }
     },
@@ -252,6 +266,20 @@
         "amount": {
           "name": "Mängd",
           "description": "Hur mycket som ska läggas till. Lämna tomt för en förpackning."
+        }
+      }
+    },
+    "skip": {
+      "name": "Hoppa över",
+      "description": "Hoppa över dosen eller mätningen som är på tur. Använder inget lager.",
+      "fields": {
+        "entity_id": {
+          "name": "Sak",
+          "description": "Valfri entitet som hör till medicinen eller mätningen."
+        },
+        "user_id": {
+          "name": "Användare",
+          "description": "Home Assistant-användar-ID för den som gjorde det, t.ex. från en notisknapp. Standard är den som kör actionen."
         }
       }
     }

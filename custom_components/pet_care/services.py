@@ -17,20 +17,25 @@ ATTR_GIVEN_AT = "given_at"
 ATTR_MEASURED_AT = "measured_at"
 ATTR_FORCE = "force"
 ATTR_VALUE = "value"
+ATTR_USER_ID = "user_id"
 
 SERVICE_GIVE_DOSE = "give_dose"
 SERVICE_LOG_MEASUREMENT = "log_measurement"
 SERVICE_UNDO = "undo"
 SERVICE_REFILL = "refill"
+SERVICE_SKIP = "skip"
 ATTR_AMOUNT = "amount"
 
 _TARGET = {vol.Required(ATTR_ENTITY_ID): cv.entity_ids}
+# Who did it, e.g. the user who tapped a notification. Defaults to the caller.
+_USER = {vol.Optional(ATTR_USER_ID): vol.Any(None, cv.string)}
 
 GIVE_DOSE_SCHEMA = vol.Schema(
     {
         **_TARGET,
         vol.Optional(ATTR_GIVEN_AT): cv.datetime,
         vol.Optional(ATTR_FORCE, default=False): cv.boolean,
+        **_USER,
     }
 )
 LOG_MEASUREMENT_SCHEMA = vol.Schema(
@@ -38,9 +43,11 @@ LOG_MEASUREMENT_SCHEMA = vol.Schema(
         **_TARGET,
         vol.Required(ATTR_VALUE): vol.Coerce(float),
         vol.Optional(ATTR_MEASURED_AT): cv.datetime,
+        **_USER,
     }
 )
 UNDO_SCHEMA = vol.Schema(_TARGET)
+SKIP_SCHEMA = vol.Schema({**_TARGET, **_USER})
 REFILL_SCHEMA = vol.Schema(
     {**_TARGET, vol.Optional(ATTR_AMOUNT): vol.All(vol.Coerce(float), vol.Range(min=0))}
 )
@@ -90,6 +97,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 call.context,
                 call.data.get(ATTR_GIVEN_AT),
                 call.data[ATTR_FORCE],
+                call.data.get(ATTR_USER_ID) or None,
             )
 
     async def log_measurement(call: ServiceCall) -> None:
@@ -100,6 +108,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 call.data[ATTR_VALUE],
                 call.context,
                 call.data.get(ATTR_MEASURED_AT),
+                call.data.get(ATTR_USER_ID) or None,
             )
 
     async def undo(call: ServiceCall) -> None:
@@ -116,5 +125,11 @@ def async_setup_services(hass: HomeAssistant) -> None:
             data, subentry = _resolve(hass, entity_id, SUBENTRY_DOSE)
             await data.async_refill(subentry, call.data.get(ATTR_AMOUNT), call.context)
 
+    async def skip(call: ServiceCall) -> None:
+        for entity_id in call.data[ATTR_ENTITY_ID]:
+            data, subentry = _resolve(hass, entity_id, None)
+            await data.async_skip(subentry, call.context, call.data.get(ATTR_USER_ID) or None)
+
     hass.services.async_register(DOMAIN, SERVICE_UNDO, undo, UNDO_SCHEMA)
+    hass.services.async_register(DOMAIN, SERVICE_SKIP, skip, SKIP_SCHEMA)
     hass.services.async_register(DOMAIN, SERVICE_REFILL, refill, REFILL_SCHEMA)

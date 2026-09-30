@@ -21,7 +21,7 @@
   <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=Krak3N22&repository=ha-pet-care&category=integration"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open in HACS"></a>
 </p>
 
-<p align="center"><a href="https://krak3n22.github.io/ha-pet-care/">Website</a> · <a href="#install">Install</a> · <a href="#setup">Setup</a> · <a href="#actions">Actions</a></p>
+<p align="center"><a href="https://krak3n22.github.io/ha-pet-care/">Website</a> · <a href="#install">Install</a> · <a href="#setup">Setup</a> · <a href="#reminders">Reminders</a> · <a href="#actions">Actions</a></p>
 
 ---
 
@@ -30,6 +30,8 @@
 - 💊 **Medications:** a *Give dose* button, when it was last given and **by whom**, when it's due next, and an alert when it's overdue.
 - 📈 **Measurements:** log values such as weekly blood glucose or weight and get a history graph with reminders.
 - 📦 **Stock:** counts down with every dose, shows how many **days are left** and warns when it's running low. **Refill** adds a new pack in one press.
+- 🔔 **Reminders with buttons:** a ready-made blueprint notifies everyone's phones with **Given**, **Snooze** and **Skip**. The notification disappears from all phones as soon as someone gives the dose.
+- ⏭️ **Skip:** the vet paused the medicine, or the cat refused? Skip the dose without using stock.
 - 👥 **Built for households:** everyone uses their own Home Assistant user, so you always know who did what.
 - 🛡️ **Double dose guard:** *"Inhaler was already given at 16:46 by Alex."* Press again within 30 seconds if you really meant it.
 - ↩️ **Undo:** mis-tapped? Undo the latest entry and the stock is put back.
@@ -79,14 +81,30 @@ Each medication or measurement becomes its own device under the pet, for example
 | **Days left** (duration) | if tracked and scheduled | |
 | **Low stock** (problem sensor) | if tracked | |
 | **Refill** (button) | if a pack size is set | |
+| **Skip** (button) | if scheduled | if scheduled |
 | **Undo latest** (button, under Configuration) | ✅ | ✅ |
+
+## Reminders
+
+[![Import the blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml)
+
+The **dose reminder** blueprint sends a notification to the phones you choose when a medication is overdue:
+
+- **Given** logs the dose in the name of whoever tapped it.
+- **Snooze** reminds again later (default 30 minutes).
+- **Skip** skips this dose without using stock.
+
+When the dose is given, in the notification or anywhere else, the notification is removed from every phone. Without an answer it reminds again every 30 minutes, up to 6 times. Both numbers can be changed. The texts can be changed too, for example to Swedish.
+
+Import it with the button above (or from `blueprints/automation/pet_care/dose_reminder.yaml`), then create one automation per medication.
 
 ## Actions
 
 | Action | Target | Fields |
 |---|---|---|
-| `pet_care.give_dose` | a *Give dose* button | `given_at` (optional), `force` (skip the double dose guard) |
-| `pet_care.log_measurement` | a *Log value* number | `value`, `measured_at` (optional) |
+| `pet_care.give_dose` | a *Give dose* button | `given_at`, `force` (skip the double dose guard), `user_id` (all optional) |
+| `pet_care.log_measurement` | a *Log value* number | `value`, `measured_at` and `user_id` (optional) |
+| `pet_care.skip` | any entity of the item | `user_id` (optional) |
 | `pet_care.undo` | any entity of the item | |
 | `pet_care.refill` | any entity of a medication | `amount` (optional, default one pack) |
 
@@ -131,27 +149,10 @@ actions:
 
 </details>
 
-<details>
-<summary><b>Example:</b> a notification when a dose is overdue</summary>
-
-```yaml
-alias: Inhaler overdue
-triggers:
-  - trigger: state
-    entity_id: binary_sensor.freja_inhaler_overdue
-    to: "on"
-    for: "00:15:00"
-actions:
-  - action: notify.notify
-    data:
-      message: "Freja's inhaler is overdue."
-```
-
-</details>
 
 ## Events
 
-For automations: `pet_care_dose_given`, `pet_care_measurement_logged`, `pet_care_undone` and `pet_care_refilled`.
+For automations: `pet_care_dose_given`, `pet_care_measurement_logged`, `pet_care_skipped`, `pet_care_undone` and `pet_care_refilled`.
 
 ## Development
 

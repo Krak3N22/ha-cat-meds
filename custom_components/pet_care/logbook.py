@@ -19,6 +19,7 @@ from .const import (
     EVENT_DOSE_GIVEN,
     EVENT_MEASUREMENT_LOGGED,
     EVENT_REFILLED,
+    EVENT_SKIPPED,
     EVENT_UNDONE,
 )
 from .data import format_time
@@ -34,6 +35,8 @@ MESSAGES = {
         "undone_by": "{item} from {time} was undone by {user}",
         "refilled": "{item} refilled with {amount} {unit}",
         "refilled_by": "{item} refilled with {amount} {unit} by {user}",
+        "skipped": "{item} was skipped",
+        "skipped_by": "{item} was skipped by {user}",
     },
     "sv": {
         "dose": "fick {item}",
@@ -44,6 +47,8 @@ MESSAGES = {
         "undone_by": "{item} från kl. {time} ångrades av {user}",
         "refilled": "{item} påfylld med {amount} {unit}",
         "refilled_by": "{item} påfylld med {amount} {unit} av {user}",
+        "skipped": "{item} hoppades över",
+        "skipped_by": "{item} hoppades över av {user}",
     },
 }
 
@@ -106,6 +111,16 @@ def async_describe_events(
         }
 
     @callback
+    def describe_skipped(event: Event) -> dict[str, Any]:
+        data = event.data
+        template = messages["skipped_by" if data.get("user") else "skipped"]
+        return {
+            LOGBOOK_ENTRY_NAME: data["pet"],
+            LOGBOOK_ENTRY_MESSAGE: template.format(**data),
+            LOGBOOK_ENTRY_ENTITY_ID: _entity_id("button", data, "skip"),
+        }
+
+    @callback
     def describe_undone(event: Event) -> dict[str, Any]:
         data = event.data
         template = messages["undone_by" if data.get("user") else "undone"]
@@ -122,3 +137,4 @@ def async_describe_events(
     async_describe_event(DOMAIN, EVENT_MEASUREMENT_LOGGED, describe_measurement)
     async_describe_event(DOMAIN, EVENT_UNDONE, describe_undone)
     async_describe_event(DOMAIN, EVENT_REFILLED, describe_refilled)
+    async_describe_event(DOMAIN, EVENT_SKIPPED, describe_skipped)

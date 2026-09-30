@@ -31,6 +31,7 @@ from .const import (
     EVENT_DOSE_GIVEN,
     EVENT_MEASUREMENT_LOGGED,
     EVENT_REFILLED,
+    EVENT_SKIPPED,
     EVENT_UNDONE,
     MAX_EVENTS,
     SUBENTRY_DOSE,
@@ -109,12 +110,14 @@ class PetCareData:
         """Compute the current status of an item."""
         item = self._item(subentry.subentry_id)
         events = item["events"]
-        last_event = events[-1] if events else None
-        last = dt_util.parse_datetime(last_event["ts"]) if last_event else None
+        # Skips count for the schedule, but not as "last given".
+        done = [e for e in events if not e.get("skipped")]
+        last_event = done[-1] if done else None
+        last = _event_time(last_event) if last_event else None
         now = dt_util.now()
         due = schedule.next_due(
             now,
-            last,
+            _event_time(events[-1]) if events else None,
             dt_util.parse_datetime(item["created"]),
             subentry.data.get(CONF_TIMES, []),
             subentry.data.get(CONF_INTERVAL_DAYS) or 0,
@@ -153,10 +156,14 @@ class PetCareData:
             low_stock=low_stock,
         )
 
-    async def _async_user(self, context: Context | None) -> tuple[str | None, str | None]:
-        user_id = context.user_id if context else None
+    async def _async_user(
+        self, context: Context | None, user_id: str | None = None
+    ) -> tuple[str | None, str | None]:
+        """Who did it: the given user (e.g. who tapped a notification), else the caller."""
         user = await self.hass.auth.async_get_user(user_id) if user_id else None
-        return user_id, user.name if user else None
+        if user is None and context and context.user_id:
+            user = await self.hass.auth.async_get_user(context.user_id)
+        return (user.id, user.name) if user else (None, None)
 
     def _add_event(
         self, subentry: ConfigSubentry, event: dict[str, Any]
@@ -186,7 +193,9 @@ class PetCareData:
         Pressing again within CONFIRM_WINDOW confirms that it was intended.
         """
         guard = float(subentry.data.get(CONF_GUARD_HOURS, DEFAULT_GUARD_HOURS))
-        events = self._item(subentry.subentry_id)["events"]
+        events = [
+            e for e in self._item(subentry.subentry_id)["events"] if not e.get("skipped")
+        ]
         if force or not guard or not events:
             self._confirm.pop(subentry.subentry_id, None)
             return
@@ -217,11 +226,12 @@ class PetCareData:
         context: Context | None,
         when: datetime | None = None,
         force: bool = False,
+        user_id: str | None = None,
     ) -> None:
         """Log a dose and take it out of stock."""
         when = self._check_when(when)
         self._check_double_dose(subentry, when, force)
-        user_id, user = await self._async_user(context)
+        user_id, user = await self._async_user(context, user_id)
         event: dict[str, Any] = {
             "ts": when.isoformat(),
             "logged": dt_util.utcnow().isoformat(),
@@ -257,10 +267,11 @@ class PetCareData:
         value: float,
         context: Context | None,
         when: datetime | None = None,
+        user_id: str | None = None,
     ) -> None:
         """Log a measured value."""
         when = self._check_when(when)
-        user_id, user = await self._async_user(context)
+        user_id, user = await self._async_user(context, user_id)
         event = {
             "ts": when.isoformat(),
             "logged": dt_util.utcnow().isoformat(),
@@ -280,6 +291,47 @@ class PetCareData:
                 "unit": subentry.data.get(CONF_UNIT) or "",
                 "user": user,
                 "measured_at": event["ts"],
+            },
+            context=context,
+        )
+        self.async_notify()
+
+    async def async_skip(
+        self, subentry: ConfigSubentry, context: Context | None, user_id: str | None = None
+    ) -> None:
+        """Skip the due (or next) dose or measurement, without using stock."""
+        due = self.status(subentry).next_due
+        if due is None:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="no_schedule",
+                translation_placeholders={"item": subentry.title},
+            )
+        # Overdue: skip it now. Not due yet: skip the upcoming one by
+        # placing the skip at its due time.
+        now = dt_util.utcnow()
+        when = max(now, dt_util.as_utc(due))
+        user_id, user = await self._async_user(context, user_id)
+        event: dict[str, Any] = {
+            "ts": when.isoformat(),
+            "logged": dt_util.utcnow().isoformat(),
+            "user_id": user_id,
+            "user": user,
+            "skipped": True,
+        }
+        if subentry.data.get(CONF_TRACK_STOCK):
+            event["amount"] = 0.0
+        self._add_event(subentry, event)
+        self._confirm.pop(subentry.subentry_id, None)
+        await self._async_save()
+        self.hass.bus.async_fire(
+            EVENT_SKIPPED,
+            {
+                "pet": self.entry.title,
+                "subentry_id": subentry.subentry_id,
+                "item": subentry.title,
+                "user": user,
+                "skipped_at": event["ts"],
             },
             context=context,
         )
