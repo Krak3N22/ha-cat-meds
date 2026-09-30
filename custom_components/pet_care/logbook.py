@@ -12,8 +12,10 @@ from homeassistant.components.logbook import (
 )
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
+from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, EVENT_DOSE_GIVEN, EVENT_MEASUREMENT_LOGGED
+from .const import DOMAIN, EVENT_DOSE_GIVEN, EVENT_MEASUREMENT_LOGGED, EVENT_UNDONE
+from .data import format_time
 
 # Logbook messages can't use strings.json, so they are translated here.
 MESSAGES = {
@@ -22,12 +24,16 @@ MESSAGES = {
         "dose_by": "got {item} from {user}",
         "measurement": "{item}: {value} {unit}",
         "measurement_by": "{item}: {value} {unit} (measured by {user})",
+        "undone": "{item} from {time} was undone",
+        "undone_by": "{item} from {time} was undone by {user}",
     },
     "sv": {
         "dose": "fick {item}",
         "dose_by": "fick {item} av {user}",
         "measurement": "{item}: {value} {unit}",
         "measurement_by": "{item}: {value} {unit} (mätt av {user})",
+        "undone": "{item} från kl. {time} ångrades",
+        "undone_by": "{item} från kl. {time} ångrades av {user}",
     },
 }
 
@@ -75,5 +81,19 @@ def async_describe_events(
             LOGBOOK_ENTRY_ENTITY_ID: _entity_id("number", data, "log_value"),
         }
 
+    @callback
+    def describe_undone(event: Event) -> dict[str, Any]:
+        data = event.data
+        template = messages["undone_by" if data.get("user") else "undone"]
+        undone_at = dt_util.parse_datetime(data["undone_at"])
+        return {
+            LOGBOOK_ENTRY_NAME: data["pet"],
+            LOGBOOK_ENTRY_MESSAGE: template.format(
+                **{**data, "time": format_time(undone_at) if undone_at else "?"}
+            ),
+            LOGBOOK_ENTRY_ENTITY_ID: _entity_id("button", data, "undo"),
+        }
+
     async_describe_event(DOMAIN, EVENT_DOSE_GIVEN, describe_dose)
     async_describe_event(DOMAIN, EVENT_MEASUREMENT_LOGGED, describe_measurement)
+    async_describe_event(DOMAIN, EVENT_UNDONE, describe_undone)

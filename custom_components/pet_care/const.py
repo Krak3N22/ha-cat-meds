@@ -12,9 +12,13 @@ CONF_TIMES = "times"
 CONF_INTERVAL_DAYS = "interval_days"
 CONF_TRACK_STOCK = "track_stock"
 CONF_STOCK = "stock"
+CONF_GUARD_HOURS = "guard_hours"
+
+DEFAULT_GUARD_HOURS = 2
 
 EVENT_DOSE_GIVEN = f"{DOMAIN}_dose_given"
 EVENT_MEASUREMENT_LOGGED = f"{DOMAIN}_measurement_logged"
+EVENT_UNDONE = f"{DOMAIN}_undone"
 
 MAX_EVENTS = 200
 
