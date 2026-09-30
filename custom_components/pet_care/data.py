@@ -19,14 +19,18 @@ from .const import (
     CONF_DOSE_AMOUNT,
     CONF_GUARD_HOURS,
     CONF_INTERVAL_DAYS,
+    CONF_LOW_STOCK_DAYS,
+    CONF_PACK_SIZE,
     CONF_STOCK,
     CONF_TIMES,
     CONF_TRACK_STOCK,
     CONF_UNIT,
     DEFAULT_GUARD_HOURS,
+    DEFAULT_LOW_STOCK_DAYS,
     DOMAIN,
     EVENT_DOSE_GIVEN,
     EVENT_MEASUREMENT_LOGGED,
+    EVENT_REFILLED,
     EVENT_UNDONE,
     MAX_EVENTS,
     SUBENTRY_DOSE,
@@ -58,6 +62,8 @@ class ItemStatus:
     next_due: datetime | None
     overdue: bool
     stock: float | None
+    days_left: float | None
+    low_stock: bool
 
 
 class PetCareData:
@@ -113,13 +119,38 @@ class PetCareData:
             subentry.data.get(CONF_TIMES, []),
             subentry.data.get(CONF_INTERVAL_DAYS) or 0,
         )
+        stock = item.get("stock") if subentry.data.get(CONF_TRACK_STOCK) else None
+        days_left = None
+        low_stock = False
+        if stock is not None:
+            amount = float(subentry.data.get(CONF_DOSE_AMOUNT, 1))
+            days_left = schedule.days_left(
+                stock,
+                amount,
+                schedule.doses_per_day(
+                    subentry.data.get(CONF_TIMES, []),
+                    subentry.data.get(CONF_INTERVAL_DAYS) or 0,
+                ),
+            )
+            threshold = float(
+                subentry.data.get(CONF_LOW_STOCK_DAYS, DEFAULT_LOW_STOCK_DAYS)
+            )
+            # Without a schedule, stock is low when not even one dose is left.
+            if threshold <= 0:
+                low_stock = False
+            elif days_left is not None:
+                low_stock = days_left < threshold
+            else:
+                low_stock = stock < amount
         return ItemStatus(
             last=last,
             last_by=last_event.get("user") if last_event else None,
             last_value=last_event.get("value") if last_event else None,
             next_due=due,
             overdue=schedule.is_overdue(now, due),
-            stock=item.get("stock") if subentry.data.get(CONF_TRACK_STOCK) else None,
+            stock=stock,
+            days_left=days_left,
+            low_stock=low_stock,
         )
 
     async def _async_user(self, context: Context | None) -> tuple[str | None, str | None]:
@@ -289,6 +320,42 @@ class PetCareData:
                 "item": subentry.title,
                 "user": user,
                 "undone_at": latest["ts"],
+            },
+            context=context,
+        )
+        self.async_notify()
+
+    async def async_refill(
+        self, subentry: ConfigSubentry, amount: float | None, context: Context | None
+    ) -> None:
+        """Add to the stock, by default one pack."""
+        if not subentry.data.get(CONF_TRACK_STOCK):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="no_stock",
+                translation_placeholders={"item": subentry.title},
+            )
+        if amount is None:
+            amount = float(subentry.data.get(CONF_PACK_SIZE) or 0)
+        if amount <= 0:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="no_pack_size",
+                translation_placeholders={"item": subentry.title},
+            )
+        item = self._item(subentry.subentry_id)
+        item["stock"] = item.get("stock", 0.0) + amount
+        _, user = await self._async_user(context)
+        await self._async_save()
+        self.hass.bus.async_fire(
+            EVENT_REFILLED,
+            {
+                "pet": self.entry.title,
+                "subentry_id": subentry.subentry_id,
+                "item": subentry.title,
+                "amount": amount,
+                "unit": subentry.data.get(CONF_UNIT) or "",
+                "user": user,
             },
             context=context,
         )

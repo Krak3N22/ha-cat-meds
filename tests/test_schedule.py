@@ -67,3 +67,17 @@ def test_no_schedule():
     due = schedule.next_due(at(2, 9), None, CREATED, [], 0)
     assert due is None
     assert not schedule.is_overdue(at(2, 9), due)
+
+
+def test_doses_per_day():
+    assert schedule.doses_per_day(["08:00", "20:00"], 0) == 2
+    assert schedule.doses_per_day([], 7) == pytest.approx(1 / 7)
+    assert schedule.doses_per_day([], 0) is None
+
+
+def test_days_left():
+    assert schedule.days_left(200, 1, 1) == 200
+    assert schedule.days_left(30, 0.5, 2) == 30
+    assert schedule.days_left(10, 1, 1 / 7) == pytest.approx(70)
+    assert schedule.days_left(10, 1, None) is None
+    assert schedule.days_left(10, 0, 1) is None

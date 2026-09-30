@@ -11,6 +11,7 @@ from custom_components.pet_care.const import (
     DOMAIN,
     EVENT_DOSE_GIVEN,
     EVENT_MEASUREMENT_LOGGED,
+    EVENT_REFILLED,
     EVENT_UNDONE,
 )
 
@@ -77,3 +78,15 @@ async def test_logbook_swedish(hass: HomeAssistant) -> None:
     )
     assert entry["message"].startswith("Inhalator från kl. 2020-01-01")
     assert entry["message"].endswith("ångrades av Alex")
+
+
+async def test_logbook_refilled(hass: HomeAssistant) -> None:
+    """Refills show the amount with a decimal comma in Swedish."""
+    hass.config.language = "sv"
+    entry = _describers(hass)[EVENT_REFILLED](
+        Event(
+            EVENT_REFILLED,
+            {"pet": "Freja", "item": "Inhalator", "amount": 200.0, "unit": "puffar", "user": "Alex"},
+        )
+    )
+    assert entry["message"] == "Inhalator påfylld med 200 puffar av Alex"

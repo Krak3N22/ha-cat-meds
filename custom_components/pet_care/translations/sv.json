@@ -28,14 +28,18 @@
             "interval_days": "Eller var N:e dag",
             "track_stock": "Håll koll på lager",
             "stock": "Nuvarande lager",
-            "guard_hours": "Varna om dos ges igen inom (timmar)"
+            "guard_hours": "Varna om dos ges igen inom (timmar)",
+            "pack_size": "Förpackningens storlek",
+            "low_stock_days": "Varna när lagret räcker färre än (dagar)"
           },
           "data_description": {
             "times": "Kommaseparerat, t.ex. 08:00, 20:00. Lämna tomt för att använda intervall istället.",
             "interval_days": "Används om inga klockslag anges. 0 = inget schema.",
             "unit": "T.ex. puffar, tabletter, mmol/L.",
             "stock": "Hur många enheter ni har just nu.",
-            "guard_hours": "Trycker man igen inom 30 sekunder ges dosen ändå. 0 = varna aldrig."
+            "guard_hours": "Trycker man igen inom 30 sekunder ges dosen ändå. 0 = varna aldrig.",
+            "pack_size": "Hur mycket en ny förpackning innehåller, t.ex. 200 puffar. Ger en Fyll på-knapp. 0 = ingen knapp.",
+            "low_stock_days": "Räknas utifrån schemat. 0 = varna aldrig."
           }
         },
         "reconfigure": {
@@ -47,13 +51,17 @@
             "times": "Klockslag",
             "interval_days": "Eller var N:e dag",
             "track_stock": "Håll koll på lager",
-            "guard_hours": "Varna om dos ges igen inom (timmar)"
+            "guard_hours": "Varna om dos ges igen inom (timmar)",
+            "pack_size": "Förpackningens storlek",
+            "low_stock_days": "Varna när lagret räcker färre än (dagar)"
           },
           "data_description": {
             "times": "Kommaseparerat, t.ex. 08:00, 20:00. Lämna tomt för att använda intervall istället.",
             "interval_days": "Används om inga klockslag anges. 0 = inget schema.",
             "unit": "T.ex. puffar, tabletter, mmol/L.",
-            "guard_hours": "Trycker man igen inom 30 sekunder ges dosen ändå. 0 = varna aldrig."
+            "guard_hours": "Trycker man igen inom 30 sekunder ges dosen ändå. 0 = varna aldrig.",
+            "pack_size": "Hur mycket en ny förpackning innehåller, t.ex. 200 puffar. Ger en Fyll på-knapp. 0 = ingen knapp.",
+            "low_stock_days": "Räknas utifrån schemat. 0 = varna aldrig."
           }
         }
       },
@@ -110,6 +118,9 @@
   },
   "entity": {
     "binary_sensor": {
+      "low_stock": {
+        "name": "Lågt lager"
+      },
       "overdue": {
         "name": "Försenad"
       }
@@ -117,6 +128,9 @@
     "button": {
       "give_dose": {
         "name": "Ge dos"
+      },
+      "refill": {
+        "name": "Fyll på"
       },
       "undo": {
         "name": "Ångra senaste"
@@ -131,6 +145,9 @@
       }
     },
     "sensor": {
+      "days_left": {
+        "name": "Dagar kvar"
+      },
       "last_given": {
         "name": "Senast given"
       },
@@ -169,6 +186,12 @@
     },
     "not_measurement": {
       "message": "{entity_id} är inte en mätning i Pet Care."
+    },
+    "no_stock": {
+      "message": "{item} håller inte koll på lager."
+    },
+    "no_pack_size": {
+      "message": "Ange förpackningens storlek för {item}, eller en mängd."
     }
   },
   "services": {
@@ -215,6 +238,20 @@
         "entity_id": {
           "name": "Sak",
           "description": "Valfri entitet som hör till medicinen eller mätningen."
+        }
+      }
+    },
+    "refill": {
+      "name": "Fyll på",
+      "description": "Lägg till i lagret, som standard en förpackning.",
+      "fields": {
+        "entity_id": {
+          "name": "Medicin",
+          "description": "Valfri entitet som hör till medicinen."
+        },
+        "amount": {
+          "name": "Mängd",
+          "description": "Hur mycket som ska läggas till. Lämna tomt för en förpackning."
         }
       }
     }

@@ -44,3 +44,19 @@ undo:
         entity:
           integration: pet_care
           multiple: true
+
+refill:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: pet_care
+          multiple: true
+    amount:
+      selector:
+        number:
+          min: 0
+          max: 100000
+          step: 0.5
+          mode: box
