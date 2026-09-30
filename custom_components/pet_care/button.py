@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import PetCareConfigEntry
-from .const import SUBENTRY_DOSE
+from .const import CONF_PACK_SIZE, CONF_TRACK_STOCK, SUBENTRY_DOSE
 from .entity import PetCareEntity
 
 
@@ -22,6 +22,8 @@ async def async_setup_entry(
         entities: list[ButtonEntity] = [UndoButton(entry, subentry, "undo")]
         if subentry.subentry_type == SUBENTRY_DOSE:
             entities.append(GiveDoseButton(entry, subentry, "give_dose"))
+            if subentry.data.get(CONF_TRACK_STOCK) and subentry.data.get(CONF_PACK_SIZE):
+                entities.append(RefillButton(entry, subentry, "refill"))
         async_add_entities(entities, config_subentry_id=subentry.subentry_id)
 
 
@@ -33,6 +35,16 @@ class GiveDoseButton(PetCareEntity, ButtonEntity):
     async def async_press(self) -> None:
         """Log the dose, attributed to the user who pressed."""
         await self._data.async_give_dose(self._subentry, self._context)
+
+
+class RefillButton(PetCareEntity, ButtonEntity):
+    """Add one pack to the stock, e.g. when opening a new inhaler."""
+
+    _attr_icon = "mdi:package-variant-plus"
+
+    async def async_press(self) -> None:
+        """Add one pack."""
+        await self._data.async_refill(self._subentry, None, self._context)
 
 
 class UndoButton(PetCareEntity, ButtonEntity):

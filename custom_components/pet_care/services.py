@@ -21,6 +21,8 @@ ATTR_VALUE = "value"
 SERVICE_GIVE_DOSE = "give_dose"
 SERVICE_LOG_MEASUREMENT = "log_measurement"
 SERVICE_UNDO = "undo"
+SERVICE_REFILL = "refill"
+ATTR_AMOUNT = "amount"
 
 _TARGET = {vol.Required(ATTR_ENTITY_ID): cv.entity_ids}
 
@@ -39,6 +41,9 @@ LOG_MEASUREMENT_SCHEMA = vol.Schema(
     }
 )
 UNDO_SCHEMA = vol.Schema(_TARGET)
+REFILL_SCHEMA = vol.Schema(
+    {**_TARGET, vol.Optional(ATTR_AMOUNT): vol.All(vol.Coerce(float), vol.Range(min=0))}
+)
 
 
 def _resolve(
@@ -106,4 +111,10 @@ def async_setup_services(hass: HomeAssistant) -> None:
     hass.services.async_register(
         DOMAIN, SERVICE_LOG_MEASUREMENT, log_measurement, LOG_MEASUREMENT_SCHEMA
     )
+    async def refill(call: ServiceCall) -> None:
+        for entity_id in call.data[ATTR_ENTITY_ID]:
+            data, subentry = _resolve(hass, entity_id, SUBENTRY_DOSE)
+            await data.async_refill(subentry, call.data.get(ATTR_AMOUNT), call.context)
+
     hass.services.async_register(DOMAIN, SERVICE_UNDO, undo, UNDO_SCHEMA)
+    hass.services.async_register(DOMAIN, SERVICE_REFILL, refill, REFILL_SCHEMA)

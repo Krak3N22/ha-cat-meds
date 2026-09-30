@@ -12,7 +12,7 @@ from homeassistant.core import Context, HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_capture_events
 
 from custom_components.pet_care.const import DOMAIN
 
@@ -37,6 +37,10 @@ async def test_entities_created(hass: HomeAssistant, setup_entry: MockConfigEntr
     assert hass.states.get(entity_id(hass, "sensor", DOSE_ID, "next_due"))
     assert hass.states.get(entity_id(hass, "binary_sensor", DOSE_ID, "overdue"))
     assert hass.states.get(entity_id(hass, "button", DOSE_ID, "undo"))
+    assert hass.states.get(entity_id(hass, "button", DOSE_ID, "refill"))
+    # 200 puffs, one a day.
+    assert state(hass, entity_id(hass, "sensor", DOSE_ID, "days_left")) == "200.0"
+    assert state(hass, entity_id(hass, "binary_sensor", DOSE_ID, "low_stock")) == STATE_OFF
     # Never measured, so the weekly measurement is due right away.
     assert state(hass, entity_id(hass, "binary_sensor", MEASUREMENT_ID, "overdue")) == STATE_ON
     assert hass.states.get(entity_id(hass, "number", MEASUREMENT_ID, "log_value"))
@@ -221,6 +225,37 @@ async def test_set_stock(hass: HomeAssistant, setup_entry: MockConfigEntry) -> N
         "number", "set_value", {"entity_id": stock, "value": 120}, blocking=True
     )
     assert state(hass, stock) == "120.0"
+
+
+async def test_low_stock_and_refill(hass: HomeAssistant, setup_entry: MockConfigEntry, hass_admin_user) -> None:
+    """Low stock turns on under 7 days left; refill adds one pack."""
+    stock = entity_id(hass, "number", DOSE_ID, "stock")
+    low = entity_id(hass, "binary_sensor", DOSE_ID, "low_stock")
+    days_left = entity_id(hass, "sensor", DOSE_ID, "days_left")
+    await hass.services.async_call(
+        "number", "set_value", {"entity_id": stock, "value": 5}, blocking=True
+    )
+    assert state(hass, days_left) == "5.0"
+    assert state(hass, low) == STATE_ON
+
+    events = async_capture_events(hass, f"{DOMAIN}_refilled")
+    await press(
+        hass,
+        entity_id(hass, "button", DOSE_ID, "refill"),
+        Context(user_id=hass_admin_user.id),
+    )
+    assert state(hass, stock) == "205.0"
+    assert state(hass, low) == STATE_OFF
+    assert events[0].data["amount"] == 200
+    assert events[0].data["user"] == hass_admin_user.name
+
+    await hass.services.async_call(
+        DOMAIN,
+        "refill",
+        {"entity_id": entity_id(hass, "button", DOSE_ID, "give_dose"), "amount": 10},
+        blocking=True,
+    )
+    assert state(hass, stock) == "215.0"
 
 
 async def test_measurement(hass: HomeAssistant, setup_entry: MockConfigEntry, hass_admin_user) -> None:

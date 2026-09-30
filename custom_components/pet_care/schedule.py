@@ -59,3 +59,19 @@ def next_due(
 def is_overdue(now: datetime, due: datetime | None) -> bool:
     """Return True if something was due and has not been done."""
     return due is not None and now >= due
+
+
+def doses_per_day(times: list[str], interval_days: float) -> float | None:
+    """How many times a day something is given, or None if unscheduled."""
+    if times:
+        return float(len(times))
+    if interval_days:
+        return 1 / interval_days
+    return None
+
+
+def days_left(stock: float, amount: float, per_day: float | None) -> float | None:
+    """How many days the stock lasts, or None if it can't be known."""
+    if per_day is None or amount <= 0:
+        return None
+    return stock / (amount * per_day)

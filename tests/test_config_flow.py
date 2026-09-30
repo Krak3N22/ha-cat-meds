@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import pytest
+
 from homeassistant.config_entries import SOURCE_USER
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.pet_care.const import (
@@ -63,6 +67,17 @@ async def test_add_medication(hass: HomeAssistant, setup_entry: MockConfigEntry)
     assert CONF_NAME not in subentry.data
     stock = entity_id(hass, "number", subentry.subentry_id, "stock")
     assert hass.states.get(stock).state == "30.0"
+    # 30 tablets, half a tablet twice a day.
+    days_left = entity_id(hass, "sensor", subentry.subentry_id, "days_left")
+    assert hass.states.get(days_left).state == "30.0"
+
+    # No pack size: no refill button, and refill needs an amount.
+    assert not er.async_get(hass).async_get_entity_id(
+        "button", DOMAIN, f"{subentry.subentry_id}_refill"
+    )
+    with pytest.raises(ServiceValidationError) as err:
+        await hass.services.async_call(DOMAIN, "refill", {"entity_id": stock}, blocking=True)
+    assert err.value.translation_key == "no_pack_size"
 
 
 async def test_add_medication_invalid_times(hass: HomeAssistant, setup_entry: MockConfigEntry) -> None:

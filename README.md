@@ -29,7 +29,7 @@
 
 - 💊 **Medications:** a *Give dose* button, when it was last given and **by whom**, when it's due next, and an alert when it's overdue.
 - 📈 **Measurements:** log values such as weekly blood glucose or weight and get a history graph with reminders.
-- 📦 **Stock:** counts down with every dose. Set it again when you open a new pack.
+- 📦 **Stock:** counts down with every dose, shows how many **days are left** and warns when it's running low. **Refill** adds a new pack in one press.
 - 👥 **Built for households:** everyone uses their own Home Assistant user, so you always know who did what.
 - 🛡️ **Double dose guard:** *"Inhaler was already given at 16:46 by Alex."* Press again within 30 seconds if you really meant it.
 - ↩️ **Undo:** mis-tapped? Undo the latest entry and the stock is put back.
@@ -57,7 +57,7 @@ Requires Home Assistant 2025.3 or newer. The integration icon shows on 2026.3 or
 1. **Settings → Devices & services → Add integration → Pet Care**, then enter your pet's name.
 2. On the pet, choose **Add medication** or **Add measurement**:
    - **Schedule:** times of day (`08:00, 20:00`) *or* every N days. Leave both empty for no schedule.
-   - **Medication:** amount per dose, unit (for example puffs or tablets), optional stock and the double dose window (default 2 hours, 0 turns it off).
+   - **Medication:** amount per dose, unit (for example puffs or tablets), optional stock, the pack size for the *Refill* button, when to warn about low stock (default 7 days left) and the double dose window (default 2 hours, 0 turns it off).
 3. Put the entities on a dashboard. Done.
 
 A dose given up to 2 hours before a scheduled time counts for that time.
@@ -76,6 +76,9 @@ Each medication or measurement becomes its own device under the pet, for example
 | **Next due** (timestamp) | if scheduled | if scheduled |
 | **Overdue** (problem sensor) | if scheduled | if scheduled |
 | **Stock** (number) | if tracked | |
+| **Days left** (duration) | if tracked and scheduled | |
+| **Low stock** (problem sensor) | if tracked | |
+| **Refill** (button) | if a pack size is set | |
 | **Undo latest** (button, under Configuration) | ✅ | ✅ |
 
 ## Actions
@@ -85,6 +88,7 @@ Each medication or measurement becomes its own device under the pet, for example
 | `pet_care.give_dose` | a *Give dose* button | `given_at` (optional), `force` (skip the double dose guard) |
 | `pet_care.log_measurement` | a *Log value* number | `value`, `measured_at` (optional) |
 | `pet_care.undo` | any entity of the item | |
+| `pet_care.refill` | any entity of a medication | `amount` (optional, default one pack) |
 
 <details>
 <summary><b>Example:</b> a dashboard button to log a dose afterwards</summary>
@@ -110,6 +114,24 @@ sequence:
 </details>
 
 <details>
+<summary><b>Example:</b> a reminder to buy more when stock is low</summary>
+
+```yaml
+alias: Inhaler running low
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.freja_inhaler_low_stock
+    to: "on"
+actions:
+  - action: notify.notify
+    data:
+      message: >
+        Freja's inhaler lasts {{ states('sensor.freja_inhaler_days_left') | int }} more days. Time to buy a new one.
+```
+
+</details>
+
+<details>
 <summary><b>Example:</b> a notification when a dose is overdue</summary>
 
 ```yaml
@@ -129,7 +151,7 @@ actions:
 
 ## Events
 
-For automations: `pet_care_dose_given`, `pet_care_measurement_logged` and `pet_care_undone`.
+For automations: `pet_care_dose_given`, `pet_care_measurement_logged`, `pet_care_undone` and `pet_care_refilled`.
 
 ## Development
 

@@ -10,11 +10,12 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
+from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import PetCareConfigEntry
-from .const import CONF_UNIT, SUBENTRY_DOSE, SUBENTRY_MEASUREMENT
+from .const import CONF_TRACK_STOCK, CONF_UNIT, SUBENTRY_DOSE, SUBENTRY_MEASUREMENT
 from .entity import PetCareEntity, has_schedule
 
 
@@ -35,6 +36,8 @@ async def async_setup_entry(
             entities.append(ValueSensor(entry, subentry, "value"))
         if has_schedule(subentry):
             entities.append(NextDueSensor(entry, subentry, "next_due"))
+            if subentry.data.get(CONF_TRACK_STOCK):
+                entities.append(DaysLeftSensor(entry, subentry, "days_left"))
         async_add_entities(entities, config_subentry_id=subentry.subentry_id)
 
 
@@ -72,6 +75,20 @@ class NextDueSensor(PetCareEntity, SensorEntity):
     @property
     def native_value(self) -> datetime | None:
         return self.status.next_due
+
+
+class DaysLeftSensor(PetCareEntity, SensorEntity):
+    """How many days the stock lasts at the scheduled rate."""
+
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = UnitOfTime.DAYS
+    _attr_suggested_display_precision = 0
+    _attr_icon = "mdi:calendar-end"
+
+    @property
+    def native_value(self) -> float | None:
+        days = self.status.days_left
+        return round(days, 1) if days is not None else None
 
 
 class ValueSensor(PetCareEntity, SensorEntity):

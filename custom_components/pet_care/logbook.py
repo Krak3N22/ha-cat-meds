@@ -14,7 +14,13 @@ from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, EVENT_DOSE_GIVEN, EVENT_MEASUREMENT_LOGGED, EVENT_UNDONE
+from .const import (
+    DOMAIN,
+    EVENT_DOSE_GIVEN,
+    EVENT_MEASUREMENT_LOGGED,
+    EVENT_REFILLED,
+    EVENT_UNDONE,
+)
 from .data import format_time
 
 # Logbook messages can't use strings.json, so they are translated here.
@@ -26,6 +32,8 @@ MESSAGES = {
         "measurement_by": "{item}: {value} {unit} (measured by {user})",
         "undone": "{item} from {time} was undone",
         "undone_by": "{item} from {time} was undone by {user}",
+        "refilled": "{item} refilled with {amount} {unit}",
+        "refilled_by": "{item} refilled with {amount} {unit} by {user}",
     },
     "sv": {
         "dose": "fick {item}",
@@ -34,6 +42,8 @@ MESSAGES = {
         "measurement_by": "{item}: {value} {unit} (mätt av {user})",
         "undone": "{item} från kl. {time} ångrades",
         "undone_by": "{item} från kl. {time} ångrades av {user}",
+        "refilled": "{item} påfylld med {amount} {unit}",
+        "refilled_by": "{item} påfylld med {amount} {unit} av {user}",
     },
 }
 
@@ -56,6 +66,10 @@ def async_describe_events(
             platform, DOMAIN, f"{data['subentry_id']}_{key}"
         )
 
+    def _number(value: float) -> str:
+        text = f"{value:g}"
+        return text.replace(".", ",") if lang == "sv" else text
+
     @callback
     def describe_dose(event: Event) -> dict[str, Any]:
         data = event.data
@@ -69,9 +83,7 @@ def async_describe_events(
     @callback
     def describe_measurement(event: Event) -> dict[str, Any]:
         data = event.data
-        value = f"{data['value']:g}"
-        if lang == "sv":
-            value = value.replace(".", ",")
+        value = _number(data["value"])
         template = messages["measurement_by" if data.get("user") else "measurement"]
         return {
             LOGBOOK_ENTRY_NAME: data["pet"],
@@ -79,6 +91,18 @@ def async_describe_events(
                 **{**data, "value": value, "unit": data.get("unit", "")}
             ).replace("  ", " ").strip(),
             LOGBOOK_ENTRY_ENTITY_ID: _entity_id("number", data, "log_value"),
+        }
+
+    @callback
+    def describe_refilled(event: Event) -> dict[str, Any]:
+        data = event.data
+        template = messages["refilled_by" if data.get("user") else "refilled"]
+        return {
+            LOGBOOK_ENTRY_NAME: data["pet"],
+            LOGBOOK_ENTRY_MESSAGE: template.format(
+                **{**data, "amount": _number(data["amount"]), "unit": data.get("unit", "")}
+            ).replace("  ", " ").strip(),
+            LOGBOOK_ENTRY_ENTITY_ID: _entity_id("number", data, "stock"),
         }
 
     @callback
@@ -97,3 +121,4 @@ def async_describe_events(
     async_describe_event(DOMAIN, EVENT_DOSE_GIVEN, describe_dose)
     async_describe_event(DOMAIN, EVENT_MEASUREMENT_LOGGED, describe_measurement)
     async_describe_event(DOMAIN, EVENT_UNDONE, describe_undone)
+    async_describe_event(DOMAIN, EVENT_REFILLED, describe_refilled)

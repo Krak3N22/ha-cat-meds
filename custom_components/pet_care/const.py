@@ -13,12 +13,16 @@ CONF_INTERVAL_DAYS = "interval_days"
 CONF_TRACK_STOCK = "track_stock"
 CONF_STOCK = "stock"
 CONF_GUARD_HOURS = "guard_hours"
+CONF_LOW_STOCK_DAYS = "low_stock_days"
+CONF_PACK_SIZE = "pack_size"
 
 DEFAULT_GUARD_HOURS = 2
+DEFAULT_LOW_STOCK_DAYS = 7
 
 EVENT_DOSE_GIVEN = f"{DOMAIN}_dose_given"
 EVENT_MEASUREMENT_LOGGED = f"{DOMAIN}_measurement_logged"
 EVENT_UNDONE = f"{DOMAIN}_undone"
+EVENT_REFILLED = f"{DOMAIN}_refilled"
 
 MAX_EVENTS = 200
 

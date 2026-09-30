@@ -28,11 +28,14 @@ from .const import (
     CONF_DOSE_AMOUNT,
     CONF_GUARD_HOURS,
     CONF_INTERVAL_DAYS,
+    CONF_LOW_STOCK_DAYS,
+    CONF_PACK_SIZE,
     CONF_STOCK,
     CONF_TIMES,
     CONF_TRACK_STOCK,
     CONF_UNIT,
     DEFAULT_GUARD_HOURS,
+    DEFAULT_LOW_STOCK_DAYS,
     DOMAIN,
     SUBENTRY_DOSE,
     SUBENTRY_MEASUREMENT,
@@ -147,6 +150,7 @@ class DoseSubentryFlow(_ItemSubentryFlow):
         CONF_TRACK_STOCK: True,
         CONF_STOCK: 0,
         CONF_GUARD_HOURS: DEFAULT_GUARD_HOURS,
+        CONF_LOW_STOCK_DAYS: DEFAULT_LOW_STOCK_DAYS,
     }
 
     def _schema(self, reconfigure: bool) -> vol.Schema:
@@ -158,6 +162,8 @@ class DoseSubentryFlow(_ItemSubentryFlow):
             vol.Optional(CONF_INTERVAL_DAYS, default=0): _number(0, 365, 1),
             vol.Optional(CONF_GUARD_HOURS, default=0): _number(0, 48, 0.5),
             vol.Optional(CONF_TRACK_STOCK, default=False): BooleanSelector(),
+            vol.Optional(CONF_PACK_SIZE, default=0): _number(0, 100000, 0.5),
+            vol.Optional(CONF_LOW_STOCK_DAYS, default=0): _number(0, 365, 1),
         }
         if not reconfigure:
             # After creation, stock is changed with the stock entity instead.
