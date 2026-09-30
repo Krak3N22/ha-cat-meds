@@ -111,17 +111,17 @@ blueprint:
           selector:
             text:
         given_text:
-          name: "Given" button
+          name: Given button
           default: Given
           selector:
             text:
         snooze_text:
-          name: "Snooze" button
+          name: Snooze button
           default: Snooze
           selector:
             text:
         skip_text:
-          name: "Skip" button
+          name: Skip button
           default: Skip
           selector:
             text:
