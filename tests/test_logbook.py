@@ -12,6 +12,7 @@ from custom_components.pet_care.const import (
     EVENT_DOSE_GIVEN,
     EVENT_MEASUREMENT_LOGGED,
     EVENT_REFILLED,
+    EVENT_SKIPPED,
     EVENT_UNDONE,
 )
 
@@ -90,3 +91,11 @@ async def test_logbook_refilled(hass: HomeAssistant) -> None:
         )
     )
     assert entry["message"] == "Inhalator påfylld med 200 puffar av Alex"
+
+
+async def test_logbook_skipped(hass: HomeAssistant) -> None:
+    """Skips are logged."""
+    entry = _describers(hass)[EVENT_SKIPPED](
+        Event(EVENT_SKIPPED, {"pet": "Freja", "item": "Inhaler", "user": "Alex"})
+    )
+    assert entry["message"] == "Inhaler was skipped by Alex"

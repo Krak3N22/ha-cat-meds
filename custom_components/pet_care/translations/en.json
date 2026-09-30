@@ -132,6 +132,9 @@
       "refill": {
         "name": "Refill"
       },
+      "skip": {
+        "name": "Skip"
+      },
       "undo": {
         "name": "Undo latest"
       }
@@ -192,6 +195,9 @@
     },
     "no_pack_size": {
       "message": "Set a pack size for {item}, or give an amount."
+    },
+    "no_schedule": {
+      "message": "{item} has no schedule, so there is nothing to skip."
     }
   },
   "services": {
@@ -210,6 +216,10 @@
         "force": {
           "name": "Skip double dose warning",
           "description": "Log even if a dose was given recently."
+        },
+        "user_id": {
+          "name": "User",
+          "description": "Home Assistant user ID of who did it, e.g. from a notification action. Defaults to whoever runs the action."
         }
       }
     },
@@ -228,6 +238,10 @@
         "measured_at": {
           "name": "Measured at",
           "description": "When it was measured. Leave empty for now."
+        },
+        "user_id": {
+          "name": "User",
+          "description": "Home Assistant user ID of who did it, e.g. from a notification action. Defaults to whoever runs the action."
         }
       }
     },
@@ -252,6 +266,20 @@
         "amount": {
           "name": "Amount",
           "description": "How much to add. Leave empty for one pack."
+        }
+      }
+    },
+    "skip": {
+      "name": "Skip",
+      "description": "Skip the due (or next) dose or measurement. Uses no stock.",
+      "fields": {
+        "entity_id": {
+          "name": "Item",
+          "description": "Any entity of the medication or measurement."
+        },
+        "user_id": {
+          "name": "User",
+          "description": "Home Assistant user ID of who did it, e.g. from a notification action. Defaults to whoever runs the action."
         }
       }
     }

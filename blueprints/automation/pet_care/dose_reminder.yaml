@@ -1,0 +1,251 @@
+blueprint:
+  name: Pet Care – dose reminder
+  description: >
+    Sends a notification to your household's phones when a Pet Care medication
+    is overdue, with **Given**, **Snooze** and **Skip** buttons.
+
+
+    - **Given** logs the dose in the name of whoever tapped it.
+
+    - **Snooze** reminds again later.
+
+    - **Skip** skips this dose without using stock.
+
+
+    The notification disappears from every phone as soon as the dose is given,
+    in the notification or anywhere else, so nobody gives it twice. Without an
+    answer it reminds again until the dose is given.
+  domain: automation
+  source_url: https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml
+  homeassistant:
+    min_version: "2025.3.0"
+  input:
+    medication:
+      name: Medication
+      icon: mdi:medication
+      input:
+        overdue_sensor:
+          name: Overdue sensor
+          description: The medication's *Overdue* sensor.
+          selector:
+            entity:
+              filter:
+                - integration: pet_care
+                  domain: binary_sensor
+        give_dose_button:
+          name: Give dose button
+          description: The same medication's *Give dose* button.
+          selector:
+            entity:
+              filter:
+                - integration: pet_care
+                  domain: button
+    phones:
+      name: Phones
+      icon: mdi:cellphone
+      input:
+        notify_devices:
+          name: Phones to notify
+          description: Phones with the Home Assistant app.
+          selector:
+            device:
+              multiple: true
+              filter:
+                - integration: mobile_app
+    timing:
+      name: Timing
+      icon: mdi:timer-outline
+      input:
+        delay:
+          name: Wait before the first reminder
+          description: Minutes after the dose is due.
+          default: 0
+          selector:
+            number:
+              min: 0
+              max: 240
+              unit_of_measurement: min
+              mode: box
+        repeat_every:
+          name: Remind again every
+          description: Minutes between reminders when nobody answers.
+          default: 30
+          selector:
+            number:
+              min: 5
+              max: 720
+              unit_of_measurement: min
+              mode: box
+        max_reminders:
+          name: Maximum reminders
+          description: 0 = keep reminding until the dose is given or skipped.
+          default: 6
+          selector:
+            number:
+              min: 0
+              max: 50
+              mode: box
+        snooze_minutes:
+          name: Snooze for
+          default: 30
+          selector:
+            number:
+              min: 5
+              max: 720
+              unit_of_measurement: min
+              mode: box
+    texts:
+      name: Texts
+      icon: mdi:translate
+      collapsed: true
+      input:
+        title:
+          name: Title
+          description: Leave empty to use the medication's name, e.g. "Freja Inhaler".
+          default: ""
+          selector:
+            text:
+        message:
+          name: Message
+          default: Time for the next dose.
+          selector:
+            text:
+        given_text:
+          name: "Given" button
+          default: Given
+          selector:
+            text:
+        snooze_text:
+          name: "Snooze" button
+          default: Snooze
+          selector:
+            text:
+        skip_text:
+          name: "Skip" button
+          default: Skip
+          selector:
+            text:
+
+mode: restart
+
+variables:
+  overdue_sensor: !input overdue_sensor
+  button: !input give_dose_button
+  devices: !input notify_devices
+  repeat_every: !input repeat_every
+  max_reminders: !input max_reminders
+  snooze_minutes: !input snooze_minutes
+  title_input: !input title
+  message: !input message
+  given_text: !input given_text
+  snooze_text: !input snooze_text
+  skip_text: !input skip_text
+  title: "{{ title_input or device_attr(device_id(button), 'name') or state_attr(button, 'friendly_name') }}"
+  tag: "pet_care_{{ button }}"
+  action_given: "PET_CARE_GIVEN_{{ button }}"
+  action_snooze: "PET_CARE_SNOOZE_{{ button }}"
+  action_skip: "PET_CARE_SKIP_{{ button }}"
+
+triggers:
+  - trigger: state
+    entity_id: !input overdue_sensor
+    to: "on"
+    for:
+      minutes: !input delay
+    id: due
+  - trigger: state
+    entity_id: !input overdue_sensor
+    to: "off"
+    id: done
+  # Keep reminding after a restart if the dose is still overdue.
+  - trigger: homeassistant
+    event: start
+    id: start
+
+actions:
+  - if:
+      - condition: or
+        conditions:
+          - condition: trigger
+            id: due
+          - condition: and
+            conditions:
+              - condition: trigger
+                id: start
+              - condition: template
+                value_template: "{{ is_state(overdue_sensor, 'on') }}"
+    then:
+      - repeat:
+          sequence:
+            - repeat:
+                for_each: "{{ devices }}"
+                sequence:
+                  - action: "notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}"
+                    continue_on_error: true
+                    data:
+                      title: "{{ title }}"
+                      message: "{{ message }}"
+                      data:
+                        tag: "{{ tag }}"
+                        actions:
+                          - action: "{{ action_given }}"
+                            title: "{{ given_text }}"
+                          - action: "{{ action_snooze }}"
+                            title: "{{ snooze_text }}"
+                          - action: "{{ action_skip }}"
+                            title: "{{ skip_text }}"
+            - wait_for_trigger:
+                - trigger: event
+                  event_type: mobile_app_notification_action
+                  event_data:
+                    action: "{{ action_given }}"
+                - trigger: event
+                  event_type: mobile_app_notification_action
+                  event_data:
+                    action: "{{ action_snooze }}"
+                - trigger: event
+                  event_type: mobile_app_notification_action
+                  event_data:
+                    action: "{{ action_skip }}"
+              timeout: "{{ (repeat_every | int) * 60 }}"
+              continue_on_timeout: true
+            - variables:
+                answer: "{{ wait.trigger.event.data.action if wait.trigger else 'none' }}"
+                answered_by: "{{ wait.trigger.event.context.user_id if wait.trigger else none }}"
+            - choose:
+                - conditions: "{{ answer == action_given }}"
+                  sequence:
+                    - action: pet_care.give_dose
+                      continue_on_error: true
+                      target:
+                        entity_id: "{{ button }}"
+                      data:
+                        user_id: "{{ answered_by }}"
+                - conditions: "{{ answer == action_skip }}"
+                  sequence:
+                    - action: pet_care.skip
+                      continue_on_error: true
+                      target:
+                        entity_id: "{{ button }}"
+                      data:
+                        user_id: "{{ answered_by }}"
+                - conditions: "{{ answer == action_snooze }}"
+                  sequence:
+                    - delay: "{{ (snooze_minutes | int) * 60 }}"
+          until:
+            - condition: template
+              # Given or skipped turns the overdue sensor off.
+              value_template: >
+                {{ is_state(overdue_sensor, 'off')
+                   or (max_reminders | int > 0 and repeat.index >= max_reminders | int) }}
+    else:
+      # Given or skipped, here or anywhere else: remove it from every phone.
+      - repeat:
+          for_each: "{{ devices }}"
+          sequence:
+            - action: "notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}"
+              continue_on_error: true
+              data:
+                message: clear_notification
+                data:
+                  tag: "{{ tag }}"

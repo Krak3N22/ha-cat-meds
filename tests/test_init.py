@@ -258,6 +258,57 @@ async def test_low_stock_and_refill(hass: HomeAssistant, setup_entry: MockConfig
     assert state(hass, stock) == "215.0"
 
 
+async def test_skip_upcoming_dose(hass: HomeAssistant, setup_entry: MockConfigEntry) -> None:
+    """Skipping before it's due skips the upcoming dose without using stock."""
+    next_due = entity_id(hass, "sensor", DOSE_ID, "next_due")
+    before = dt_util.parse_datetime(state(hass, next_due))
+
+    await press(hass, entity_id(hass, "button", DOSE_ID, "skip"))
+    assert dt_util.parse_datetime(state(hass, next_due)) == before + timedelta(days=1)
+    assert state(hass, entity_id(hass, "sensor", DOSE_ID, "last_given")) == STATE_UNKNOWN
+    assert state(hass, entity_id(hass, "number", DOSE_ID, "stock")) == "200.0"
+
+    # A skip is not a dose, so giving one right after is not a double dose.
+    await press(hass, entity_id(hass, "button", DOSE_ID, "give_dose"))
+    assert state(hass, entity_id(hass, "number", DOSE_ID, "stock")) == "199.0"
+
+
+async def test_skip_overdue_measurement(hass: HomeAssistant, setup_entry: MockConfigEntry) -> None:
+    """Skipping an overdue measurement clears overdue; undo brings it back."""
+    overdue = entity_id(hass, "binary_sensor", MEASUREMENT_ID, "overdue")
+    assert state(hass, overdue) == STATE_ON
+    await hass.services.async_call(
+        DOMAIN,
+        "skip",
+        {"entity_id": entity_id(hass, "number", MEASUREMENT_ID, "log_value")},
+        blocking=True,
+    )
+    assert state(hass, overdue) == STATE_OFF
+    assert state(hass, entity_id(hass, "sensor", MEASUREMENT_ID, "value")) == STATE_UNKNOWN
+
+    await press(hass, entity_id(hass, "button", MEASUREMENT_ID, "undo"))
+    assert state(hass, overdue) == STATE_ON
+
+
+async def test_dose_attributed_to_given_user(
+    hass: HomeAssistant, setup_entry: MockConfigEntry, hass_admin_user
+) -> None:
+    """An automation can say who gave the dose, e.g. who tapped a notification."""
+    await hass.services.async_call(
+        DOMAIN,
+        "give_dose",
+        {
+            "entity_id": entity_id(hass, "button", DOSE_ID, "give_dose"),
+            "user_id": hass_admin_user.id,
+        },
+        blocking=True,
+    )
+    assert (
+        state(hass, entity_id(hass, "sensor", DOSE_ID, "last_given_by"))
+        == hass_admin_user.name
+    )
+
+
 async def test_measurement(hass: HomeAssistant, setup_entry: MockConfigEntry, hass_admin_user) -> None:
     """Logging a value updates the sensors and clears overdue; undo reverts it."""
     log_value = entity_id(hass, "number", MEASUREMENT_ID, "log_value")
