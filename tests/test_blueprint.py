@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+from collections.abc import Callable
 from datetime import timedelta
 from pathlib import Path
 import shutil
@@ -64,16 +66,33 @@ async def reminder(
     return calls
 
 
-async def _make_overdue(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> None:
-    next_due = dt_util.parse_datetime(
-        hass.states.get(entity_id(hass, "sensor", DOSE_ID, "next_due")).state
-    )
+async def _until(check: Callable[[], bool]) -> None:
+    """Let the event loop run until check() is true.
+
+    The reminder waits for an answer, so hass.async_block_till_done() would wait
+    for it forever. Time is frozen, so only yield instead of sleeping.
+    """
+    for _ in range(2000):
+        if check():
+            return
+        await asyncio.sleep(0)
+    raise AssertionError("condition not met")
+
+
+def _state(hass: HomeAssistant, platform: str, key: str) -> str:
+    return hass.states.get(entity_id(hass, platform, DOSE_ID, key)).state
+
+
+async def _make_overdue(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory, calls: list[ServiceCall]
+) -> None:
+    next_due = dt_util.parse_datetime(_state(hass, "sensor", "next_due"))
     freezer.move_to(next_due + timedelta(minutes=1))
     async_fire_time_changed(hass)
-    await hass.async_block_till_done()
+    await _until(lambda: _state(hass, "binary_sensor", "overdue") == STATE_ON)
+    # The trigger waits "for" 0 minutes before it fires.
     async_fire_time_changed(hass)
-    await hass.async_block_till_done()
-    assert hass.states.get(entity_id(hass, "binary_sensor", DOSE_ID, "overdue")).state == STATE_ON
+    await _until(lambda: len(calls) == 1)
 
 
 async def test_given_from_notification(
@@ -84,9 +103,8 @@ async def test_given_from_notification(
 ) -> None:
     """Overdue sends a notification; "Given" logs the dose as whoever tapped it."""
     button = entity_id(hass, "button", DOSE_ID, "give_dose")
-    await _make_overdue(hass, freezer)
+    await _make_overdue(hass, freezer, reminder)
 
-    assert len(reminder) == 1
     sent = reminder[0].data
     assert sent["title"] == "Freja Inhaler"
     assert sent["data"]["tag"] == f"pet_care_{button}"
@@ -97,7 +115,7 @@ async def test_given_from_notification(
         {"action": f"PET_CARE_GIVEN_{button}"},
         context=Context(user_id=hass_admin_user.id),
     )
-    await hass.async_block_till_done()
+    await _until(lambda: reminder[-1].data["message"] == "clear_notification")
 
     assert (
         hass.states.get(entity_id(hass, "sensor", DOSE_ID, "last_given_by")).state
@@ -113,10 +131,10 @@ async def test_skip_from_notification(
 ) -> None:
     """"Skip" skips the dose without logging it as given."""
     button = entity_id(hass, "button", DOSE_ID, "give_dose")
-    await _make_overdue(hass, freezer)
+    await _make_overdue(hass, freezer, reminder)
 
     hass.bus.async_fire("mobile_app_notification_action", {"action": f"PET_CARE_SKIP_{button}"})
-    await hass.async_block_till_done()
+    await _until(lambda: reminder[-1].data["message"] == "clear_notification")
 
     assert hass.states.get(entity_id(hass, "binary_sensor", DOSE_ID, "overdue")).state == STATE_OFF
     assert hass.states.get(entity_id(hass, "sensor", DOSE_ID, "last_given")).state == STATE_UNKNOWN
@@ -128,11 +146,9 @@ async def test_reminds_again_without_answer(
     hass: HomeAssistant, reminder: list[ServiceCall], freezer: FrozenDateTimeFactory
 ) -> None:
     """Without an answer it reminds again after the repeat time."""
-    await _make_overdue(hass, freezer)
-    assert len(reminder) == 1
+    await _make_overdue(hass, freezer, reminder)
 
     freezer.tick(timedelta(minutes=31))
     async_fire_time_changed(hass)
-    await hass.async_block_till_done()
-    assert len(reminder) == 2
+    await _until(lambda: len(reminder) == 2)
     assert reminder[1].data["message"] == "Time for the next dose."
