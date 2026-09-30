@@ -1,0 +1,46 @@
+give_dose:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: pet_care
+          domain: button
+          multiple: true
+    given_at:
+      selector:
+        datetime:
+    force:
+      default: false
+      selector:
+        boolean:
+
+log_measurement:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: pet_care
+          domain: number
+          multiple: true
+    value:
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 10000
+          step: 0.1
+          mode: box
+    measured_at:
+      selector:
+        datetime:
+
+undo:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: pet_care
+          multiple: true

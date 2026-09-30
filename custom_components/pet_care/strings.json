@@ -27,13 +27,15 @@
             "times": "Times of day",
             "interval_days": "Or every N days",
             "track_stock": "Track stock",
-            "stock": "Current stock"
+            "stock": "Current stock",
+            "guard_hours": "Warn if given again within (hours)"
           },
           "data_description": {
             "times": "Comma separated, e.g. 08:00, 20:00. Leave empty to use an interval instead.",
             "interval_days": "Used when no times are set. 0 = no schedule.",
             "unit": "E.g. puffs, tablets, mmol/L.",
-            "stock": "How many units you have right now."
+            "stock": "How many units you have right now.",
+            "guard_hours": "Pressing again within 30 seconds gives the dose anyway. 0 = never warn."
           }
         },
         "reconfigure": {
@@ -44,12 +46,14 @@
             "unit": "Unit",
             "times": "Times of day",
             "interval_days": "Or every N days",
-            "track_stock": "Track stock"
+            "track_stock": "Track stock",
+            "guard_hours": "Warn if given again within (hours)"
           },
           "data_description": {
             "times": "Comma separated, e.g. 08:00, 20:00. Leave empty to use an interval instead.",
             "interval_days": "Used when no times are set. 0 = no schedule.",
-            "unit": "E.g. puffs, tablets, mmol/L."
+            "unit": "E.g. puffs, tablets, mmol/L.",
+            "guard_hours": "Pressing again within 30 seconds gives the dose anyway. 0 = never warn."
           }
         }
       },
@@ -113,6 +117,9 @@
     "button": {
       "give_dose": {
         "name": "{item}: give dose"
+      },
+      "undo": {
+        "name": "{item}: undo latest"
       }
     },
     "number": {
@@ -141,6 +148,77 @@
       },
       "value": {
         "name": "{item}"
+      }
+    }
+  },
+  "exceptions": {
+    "already_given_by": {
+      "message": "{item} was already given at {time} by {user}. Press again within {seconds} seconds to give another dose."
+    },
+    "already_given": {
+      "message": "{item} was already given at {time}. Press again within {seconds} seconds to give another dose."
+    },
+    "nothing_to_undo": {
+      "message": "Nothing to undo from the last 24 hours."
+    },
+    "in_future": {
+      "message": "The time can't be in the future."
+    },
+    "not_pet_care_entity": {
+      "message": "{entity_id} is not a Pet Care entity."
+    },
+    "not_dose": {
+      "message": "{entity_id} is not a Pet Care medication."
+    },
+    "not_measurement": {
+      "message": "{entity_id} is not a Pet Care measurement."
+    }
+  },
+  "services": {
+    "give_dose": {
+      "name": "Give dose",
+      "description": "Log a dose, optionally at an earlier time.",
+      "fields": {
+        "entity_id": {
+          "name": "Medication",
+          "description": "The medication's give dose button."
+        },
+        "given_at": {
+          "name": "Given at",
+          "description": "When the dose was given. Leave empty for now."
+        },
+        "force": {
+          "name": "Skip double dose warning",
+          "description": "Log even if a dose was given recently."
+        }
+      }
+    },
+    "log_measurement": {
+      "name": "Log measurement",
+      "description": "Log a measured value, optionally at an earlier time.",
+      "fields": {
+        "entity_id": {
+          "name": "Measurement",
+          "description": "The measurement's log value entity."
+        },
+        "value": {
+          "name": "Value",
+          "description": "The measured value."
+        },
+        "measured_at": {
+          "name": "Measured at",
+          "description": "When it was measured. Leave empty for now."
+        }
+      }
+    },
+    "undo": {
+      "name": "Undo latest",
+      "description": "Remove the latest logged dose or measurement and give back its stock.",
+      "fields": {
+        "entity_id": {
+          "name": "Item",
+          "description": "Any entity of the medication or measurement."
+        }
       }
     }
   }
