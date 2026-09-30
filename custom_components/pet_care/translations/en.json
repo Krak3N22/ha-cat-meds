@@ -111,43 +111,40 @@
   "entity": {
     "binary_sensor": {
       "overdue": {
-        "name": "{item} overdue"
+        "name": "Overdue"
       }
     },
     "button": {
       "give_dose": {
-        "name": "{item}: give dose"
+        "name": "Give dose"
       },
       "undo": {
-        "name": "{item}: undo latest"
+        "name": "Undo latest"
       }
     },
     "number": {
       "stock": {
-        "name": "{item} stock"
+        "name": "Stock"
       },
       "log_value": {
-        "name": "{item}: log value"
+        "name": "Log value"
       }
     },
     "sensor": {
       "last_given": {
-        "name": "{item} last given"
+        "name": "Last given"
       },
       "last_given_by": {
-        "name": "{item} last given by"
+        "name": "Last given by"
       },
       "last_measured": {
-        "name": "{item} last measured"
+        "name": "Last measured"
       },
       "last_measured_by": {
-        "name": "{item} last measured by"
+        "name": "Last measured by"
       },
       "next_due": {
-        "name": "{item} next due"
-      },
-      "value": {
-        "name": "{item}"
+        "name": "Next due"
       }
     }
   },

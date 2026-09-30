@@ -10,6 +10,7 @@ from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNKNOWN
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import Context, HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import device_registry as dr
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -39,6 +40,24 @@ async def test_entities_created(hass: HomeAssistant, setup_entry: MockConfigEntr
     # Never measured, so the weekly measurement is due right away.
     assert state(hass, entity_id(hass, "binary_sensor", MEASUREMENT_ID, "overdue")) == STATE_ON
     assert hass.states.get(entity_id(hass, "number", MEASUREMENT_ID, "log_value"))
+
+
+async def test_devices(
+    hass: HomeAssistant, setup_entry: MockConfigEntry, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Each item is its own device under the pet, so no device changes subentry."""
+    devices = dr.async_get(hass)
+    pet = devices.async_get_device(identifiers={(DOMAIN, setup_entry.entry_id)})
+    inhaler = devices.async_get_device(identifiers={(DOMAIN, DOSE_ID)})
+    assert pet.name == "Freja"
+    assert inhaler.name == "Freja Inhaler"
+    assert inhaler.via_device_id == pet.id
+    assert inhaler.config_entries_subentries[setup_entry.entry_id] == {DOSE_ID}
+    assert "different config subentry" not in caplog.text
+
+    # The main value sensor is named after its device.
+    value = entity_id(hass, "sensor", MEASUREMENT_ID, "value")
+    assert hass.states.get(value).name == "Freja Glucose"
 
 
 async def test_give_dose(hass: HomeAssistant, setup_entry: MockConfigEntry, hass_admin_user) -> None:

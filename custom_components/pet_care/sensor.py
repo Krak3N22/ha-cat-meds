@@ -75,7 +75,9 @@ class NextDueSensor(PetCareEntity, SensorEntity):
 
 
 class ValueSensor(PetCareEntity, SensorEntity):
-    """Last measured value, with history graph."""
+    """Last measured value, with history graph. Named after its device."""
+
+    _attr_name = None
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:chart-line"

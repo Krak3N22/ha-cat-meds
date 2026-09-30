@@ -111,43 +111,40 @@
   "entity": {
     "binary_sensor": {
       "overdue": {
-        "name": "{item} försenad"
+        "name": "Försenad"
       }
     },
     "button": {
       "give_dose": {
-        "name": "{item}: ge dos"
+        "name": "Ge dos"
       },
       "undo": {
-        "name": "{item}: ångra senaste"
+        "name": "Ångra senaste"
       }
     },
     "number": {
       "stock": {
-        "name": "{item} i lager"
+        "name": "I lager"
       },
       "log_value": {
-        "name": "{item}: registrera värde"
+        "name": "Registrera värde"
       }
     },
     "sensor": {
       "last_given": {
-        "name": "{item} senast given"
+        "name": "Senast given"
       },
       "last_given_by": {
-        "name": "{item} senast given av"
+        "name": "Senast given av"
       },
       "last_measured": {
-        "name": "{item} senast mätt"
+        "name": "Senast mätt"
       },
       "last_measured_by": {
-        "name": "{item} senast mätt av"
+        "name": "Senast mätt av"
       },
       "next_due": {
-        "name": "{item} nästa gång"
-      },
-      "value": {
-        "name": "{item}"
+        "name": "Nästa gång"
       }
     }
   },
