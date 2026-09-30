@@ -29,6 +29,7 @@ from .const import (
     EVENT_MEASUREMENT_LOGGED,
     EVENT_UNDONE,
     MAX_EVENTS,
+    SUBENTRY_DOSE,
     signal_update,
 )
 
@@ -198,9 +199,12 @@ class PetCareData:
         }
         item = self._item(subentry.subentry_id)
         if subentry.data.get(CONF_TRACK_STOCK):
+            stock = item.get("stock", 0.0)
             amount = float(subentry.data.get(CONF_DOSE_AMOUNT, 1))
-            event["amount"] = amount
-            item["stock"] = max(0.0, item.get("stock", 0.0) - amount)
+            # Remember what was actually taken, so undo gives back exactly that
+            # (less than a dose if the stock ran out).
+            event["amount"] = min(amount, stock)
+            item["stock"] = stock - event["amount"]
         self._add_event(subentry, event)
         await self._async_save()
         self.hass.bus.async_fire(
@@ -266,8 +270,14 @@ class PetCareData:
                 translation_domain=DOMAIN, translation_key="nothing_to_undo"
             )
         events.remove(latest)
-        if "amount" in latest and "stock" in item:
-            item["stock"] = item["stock"] + latest["amount"]
+        if (
+            subentry.subentry_type == SUBENTRY_DOSE
+            and subentry.data.get(CONF_TRACK_STOCK)
+            and "stock" in item
+        ):
+            # Doses logged before 0.3.1 did not store the amount taken.
+            amount = latest.get("amount", float(subentry.data.get(CONF_DOSE_AMOUNT, 1)))
+            item["stock"] = item["stock"] + amount
         self._confirm.pop(subentry.subentry_id, None)
         _, user = await self._async_user(context)
         await self._async_save()
