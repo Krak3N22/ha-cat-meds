@@ -27,13 +27,15 @@
             "times": "Klockslag",
             "interval_days": "Eller var N:e dag",
             "track_stock": "Håll koll på lager",
-            "stock": "Nuvarande lager"
+            "stock": "Nuvarande lager",
+            "guard_hours": "Varna om dos ges igen inom (timmar)"
           },
           "data_description": {
             "times": "Kommaseparerat, t.ex. 08:00, 20:00. Lämna tomt för att använda intervall istället.",
             "interval_days": "Används om inga klockslag anges. 0 = inget schema.",
             "unit": "T.ex. puffar, tabletter, mmol/L.",
-            "stock": "Hur många enheter ni har just nu."
+            "stock": "Hur många enheter ni har just nu.",
+            "guard_hours": "Trycker man igen inom 30 sekunder ges dosen ändå. 0 = varna aldrig."
           }
         },
         "reconfigure": {
@@ -44,12 +46,14 @@
             "unit": "Enhet",
             "times": "Klockslag",
             "interval_days": "Eller var N:e dag",
-            "track_stock": "Håll koll på lager"
+            "track_stock": "Håll koll på lager",
+            "guard_hours": "Varna om dos ges igen inom (timmar)"
           },
           "data_description": {
             "times": "Kommaseparerat, t.ex. 08:00, 20:00. Lämna tomt för att använda intervall istället.",
             "interval_days": "Används om inga klockslag anges. 0 = inget schema.",
-            "unit": "T.ex. puffar, tabletter, mmol/L."
+            "unit": "T.ex. puffar, tabletter, mmol/L.",
+            "guard_hours": "Trycker man igen inom 30 sekunder ges dosen ändå. 0 = varna aldrig."
           }
         }
       },
@@ -107,40 +111,111 @@
   "entity": {
     "binary_sensor": {
       "overdue": {
-        "name": "{item} försenad"
+        "name": "Försenad"
       }
     },
     "button": {
       "give_dose": {
-        "name": "{item}: ge dos"
+        "name": "Ge dos"
+      },
+      "undo": {
+        "name": "Ångra senaste"
       }
     },
     "number": {
       "stock": {
-        "name": "{item} i lager"
+        "name": "I lager"
       },
       "log_value": {
-        "name": "{item}: registrera värde"
+        "name": "Registrera värde"
       }
     },
     "sensor": {
       "last_given": {
-        "name": "{item} senast given"
+        "name": "Senast given"
       },
       "last_given_by": {
-        "name": "{item} senast given av"
+        "name": "Senast given av"
       },
       "last_measured": {
-        "name": "{item} senast mätt"
+        "name": "Senast mätt"
       },
       "last_measured_by": {
-        "name": "{item} senast mätt av"
+        "name": "Senast mätt av"
       },
       "next_due": {
-        "name": "{item} nästa gång"
-      },
-      "value": {
-        "name": "{item}"
+        "name": "Nästa gång"
+      }
+    }
+  },
+  "exceptions": {
+    "already_given_by": {
+      "message": "{item} gavs redan kl. {time} av {user}. Tryck igen inom {seconds} sekunder för att ge en dos till."
+    },
+    "already_given": {
+      "message": "{item} gavs redan kl. {time}. Tryck igen inom {seconds} sekunder för att ge en dos till."
+    },
+    "nothing_to_undo": {
+      "message": "Inget att ångra från de senaste 24 timmarna."
+    },
+    "in_future": {
+      "message": "Tiden kan inte vara i framtiden."
+    },
+    "not_pet_care_entity": {
+      "message": "{entity_id} tillhör inte Pet Care."
+    },
+    "not_dose": {
+      "message": "{entity_id} är inte en medicin i Pet Care."
+    },
+    "not_measurement": {
+      "message": "{entity_id} är inte en mätning i Pet Care."
+    }
+  },
+  "services": {
+    "give_dose": {
+      "name": "Ge dos",
+      "description": "Logga en dos, eventuellt vid en tidigare tid.",
+      "fields": {
+        "entity_id": {
+          "name": "Medicin",
+          "description": "Medicinens knapp för att ge dos."
+        },
+        "given_at": {
+          "name": "Gavs",
+          "description": "När dosen gavs. Lämna tomt för nu."
+        },
+        "force": {
+          "name": "Hoppa över dubbeldosvarning",
+          "description": "Logga även om en dos nyss har getts."
+        }
+      }
+    },
+    "log_measurement": {
+      "name": "Logga mätning",
+      "description": "Logga ett mätvärde, eventuellt vid en tidigare tid.",
+      "fields": {
+        "entity_id": {
+          "name": "Mätning",
+          "description": "Mätningens entitet för att registrera värde."
+        },
+        "value": {
+          "name": "Värde",
+          "description": "Det uppmätta värdet."
+        },
+        "measured_at": {
+          "name": "Mättes",
+          "description": "När det mättes. Lämna tomt för nu."
+        }
+      }
+    },
+    "undo": {
+      "name": "Ångra senaste",
+      "description": "Ta bort senast loggade dos eller mätning och lägg tillbaka lagret.",
+      "fields": {
+        "entity_id": {
+          "name": "Sak",
+          "description": "Valfri entitet som hör till medicinen eller mätningen."
+        }
       }
     }
   }

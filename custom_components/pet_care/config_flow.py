@@ -26,11 +26,13 @@ from homeassistant.helpers.selector import (
 from . import schedule
 from .const import (
     CONF_DOSE_AMOUNT,
+    CONF_GUARD_HOURS,
     CONF_INTERVAL_DAYS,
     CONF_STOCK,
     CONF_TIMES,
     CONF_TRACK_STOCK,
     CONF_UNIT,
+    DEFAULT_GUARD_HOURS,
     DOMAIN,
     SUBENTRY_DOSE,
     SUBENTRY_MEASUREMENT,
@@ -121,6 +123,7 @@ class _ItemSubentryFlow(ConfigSubentryFlow):
                     data={**subentry.data, **data},
                 )
         current = {
+            **self.defaults,
             **subentry.data,
             CONF_NAME: subentry.title,
             CONF_TIMES: ", ".join(subentry.data.get(CONF_TIMES, [])),
@@ -143,6 +146,7 @@ class DoseSubentryFlow(_ItemSubentryFlow):
         CONF_TIMES: "08:00, 20:00",
         CONF_TRACK_STOCK: True,
         CONF_STOCK: 0,
+        CONF_GUARD_HOURS: DEFAULT_GUARD_HOURS,
     }
 
     def _schema(self, reconfigure: bool) -> vol.Schema:
@@ -152,6 +156,7 @@ class DoseSubentryFlow(_ItemSubentryFlow):
             vol.Optional(CONF_UNIT, default=""): TextSelector(),
             vol.Optional(CONF_TIMES, default=""): TextSelector(),
             vol.Optional(CONF_INTERVAL_DAYS, default=0): _number(0, 365, 1),
+            vol.Optional(CONF_GUARD_HOURS, default=0): _number(0, 48, 0.5),
             vol.Optional(CONF_TRACK_STOCK, default=False): BooleanSelector(),
         }
         if not reconfigure:

@@ -7,8 +7,18 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
 
-from .const import CONF_INTERVAL_DAYS, CONF_TIMES, DOMAIN, signal_update
+from .const import (
+    CONF_INTERVAL_DAYS,
+    CONF_TIMES,
+    DOMAIN,
+    SUBENTRY_DOSE,
+    SUBENTRY_MEASUREMENT,
+    signal_update,
+)
 from .data import PetCareData, ItemStatus
+
+
+MODELS = {SUBENTRY_DOSE: "Medication", SUBENTRY_MEASUREMENT: "Measurement"}
 
 
 def has_schedule(subentry: ConfigSubentry) -> bool:
@@ -27,12 +37,14 @@ class PetCareEntity(Entity):
         self._subentry = subentry
         self._attr_unique_id = f"{subentry.subentry_id}_{key}"
         self._attr_translation_key = key
-        self._attr_translation_placeholders = {"item": subentry.title}
+        # One device per item, under the pet's device. A device can only
+        # belong to one subentry, so items can't share the pet's device.
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name=entry.title,
+            identifiers={(DOMAIN, subentry.subentry_id)},
+            name=f"{entry.title} {subentry.title}",
             manufacturer="Pet Care",
-            model="Pet",
+            model=MODELS.get(subentry.subentry_type),
+            via_device=(DOMAIN, entry.entry_id),
         )
 
     @property
