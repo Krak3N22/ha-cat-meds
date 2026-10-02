@@ -90,15 +90,15 @@ Each medication or measurement becomes its own device under the pet, for example
 
 [![Import the blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml)
 
-The **dose reminder** blueprint sends a notification to the phones you choose when a medication is overdue:
+The **dose reminder** blueprint sends a notification to the phones you choose when a medication is overdue. Pick one or more medications in the same automation; each gets its own notification:
 
 - **Given** logs the dose in the name of whoever tapped it.
-- **Snooze** reminds again later (default 30 minutes).
+- **Snooze** hides the notification until the next reminder.
 - **Skip** skips this dose without using stock.
 
 When the dose is given, in the notification or anywhere else, the notification is removed from every phone. Without an answer it reminds again every 30 minutes, up to 6 times. Both numbers can be changed. The texts can be changed too, for example to Swedish.
 
-Import it with the button above, or in Home Assistant go to **Settings → Automations & scenes → Blueprints → Import blueprint** and paste `https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml`. Then create one automation per medication.
+Import it with the button above, or in Home Assistant go to **Settings → Automations & scenes → Blueprints → Import blueprint** and paste `https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml`. Then create an automation from it and pick the *Overdue* sensors of your medications.
 
 ## Actions
 
