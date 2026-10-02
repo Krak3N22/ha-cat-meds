@@ -274,7 +274,8 @@ sequence:
       <div lang="en">
         <p>Everyone who should get reminders needs the Home Assistant app on their phone.</p>
         <ol>
-          <li><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml">Import the dose reminder blueprint</a> and press <span class="ui">Preview</span> and then <span class="ui">Import</span>.</li>
+          <li><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml">Import the dose reminder blueprint</a> and press <span class="ui">Preview</span> and then <span class="ui">Import</span>.<br>
+            <small>Link not working? In Home Assistant, go to <span class="ui">Settings → Automations &amp; scenes → Blueprints → Import blueprint</span> and paste <code>https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml</code>.</small></li>
           <li>Go to <span class="ui">Settings → Automations &amp; scenes → Blueprints</span> and choose <i>Pet Care – dose reminder</i>.</li>
           <li>Pick the medication's <i>Overdue</i> sensor and <i>Give dose</i> button, and the phones to notify.</li>
           <li>Optional: change the timing, and the texts under <span class="ui">Texts</span>.</li>
@@ -286,7 +287,8 @@ sequence:
       <div lang="sv">
         <p>Alla som ska få påminnelser behöver Home Assistant-appen i mobilen.</p>
         <ol>
-          <li><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml">Importera blueprinten för dospåminnelse</a> och tryck <span class="ui">Förhandsgranska</span> och sedan <span class="ui">Importera</span>.</li>
+          <li><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml">Importera blueprinten för dospåminnelse</a> och tryck <span class="ui">Förhandsgranska</span> och sedan <span class="ui">Importera</span>.<br>
+            <small>Fungerar inte länken? I Home Assistant, gå till <span class="ui">Inställningar → Automationer och scener → Blueprints → Importera blueprint</span> och klistra in <code>https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml</code>.</small></li>
           <li>Gå till <span class="ui">Inställningar → Automationer och scener → Blueprints</span> och välj <i>Pet Care – dose reminder</i>.</li>
           <li>Välj medicinens <i>Försenad</i>-sensor och <i>Ge dos</i>-knapp, och vilka mobiler som ska få notisen.</li>
           <li>Valfritt: ändra tiderna, och texterna under <span class="ui">Texts</span>. Till exempel <i>Given</i>, <i>Om 30 min</i> och <i>Hoppa över</i>.</li>
@@ -378,6 +380,7 @@ entities:
           <li><b>Names are in English though my app is in Swedish:</b> entity names follow the <i>server</i> language. Change it in <span class="ui">Settings → System → General</span> and restart.</li>
           <li><b>"Last given by" is empty:</b> the press didn't come from a logged-in user, for example from an automation. Everyone needs their own Home Assistant user.</li>
           <li><b>No notification arrives:</b> check the automation's <span class="ui">Traces</span>. The blueprint finds each phone by its device name, so the phone's notify action must be called <code>notify.mobile_app_&lt;device name&gt;</code>.</li>
+          <li><b>The "Import" or "Open in HACS" button shows an error:</b> those buttons go through My Home Assistant, which needs your Home Assistant's address. Enter the address you use in the app, or import manually as described under <a href="#reminders">Reminders</a>.</li>
           <li><b>No icon:</b> integration icons show on Home Assistant 2026.3 or newer.</li>
         </ul>
         <p>Something else? <a href="https://github.com/Krak3N22/ha-pet-care/issues">Open an issue</a>.</p>
@@ -387,6 +390,7 @@ entities:
           <li><b>Namnen är på engelska fast appen är på svenska:</b> entitetsnamn följer <i>serverns</i> språk. Ändra under <span class="ui">Inställningar → System → Allmänt</span> och starta om.</li>
           <li><b>"Senast given av" är tom:</b> trycket kom inte från en inloggad användare, till exempel från en automation. Alla behöver en egen Home Assistant-användare.</li>
           <li><b>Ingen notis kommer:</b> titta på automationens <span class="ui">Spårningar</span>. Blueprinten hittar varje mobil via enhetens namn, så mobilens notis-åtgärd måste heta <code>notify.mobile_app_&lt;enhetens namn&gt;</code>.</li>
+          <li><b>Knappen "Importera" eller "Open in HACS" visar ett fel:</b> knapparna går via My Home Assistant, som behöver din Home Assistants adress. Skriv in adressen du använder i appen, eller importera för hand enligt <a href="#reminders">Påminnelser</a>.</li>
           <li><b>Ingen ikon:</b> integrationsikoner visas i Home Assistant 2026.3 eller nyare.</li>
         </ul>
         <p>Något annat? <a href="https://github.com/Krak3N22/ha-pet-care/issues">Skapa ett ärende</a>.</p>

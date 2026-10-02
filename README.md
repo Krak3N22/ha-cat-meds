@@ -98,7 +98,7 @@ The **dose reminder** blueprint sends a notification to the phones you choose wh
 
 When the dose is given, in the notification or anywhere else, the notification is removed from every phone. Without an answer it reminds again every 30 minutes, up to 6 times. Both numbers can be changed. The texts can be changed too, for example to Swedish.
 
-Import it with the button above (or from `blueprints/automation/pet_care/dose_reminder.yaml`), then create one automation per medication.
+Import it with the button above, or in Home Assistant go to **Settings → Automations & scenes → Blueprints → Import blueprint** and paste `https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml`. Then create one automation per medication.
 
 ## Actions
 
