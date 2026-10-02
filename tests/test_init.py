@@ -62,7 +62,11 @@ async def test_devices(
     assert pet.name == "Freja"
     assert inhaler.name == "Freja Inhaler"
     assert inhaler.via_device_id == pet.id
-    assert inhaler.config_entries_subentries[setup_entry.entry_id] == {DOSE_ID}
+    # Newer Home Assistant has one config entry per device.
+    subentry_id = getattr(inhaler, "config_subentry_id", None)
+    if subentry_id is None:
+        subentry_id = next(iter(inhaler.config_entries_subentries[setup_entry.entry_id]))
+    assert subentry_id == DOSE_ID
     assert "different config subentry" not in caplog.text
 
     # The main value sensor is named after its device.

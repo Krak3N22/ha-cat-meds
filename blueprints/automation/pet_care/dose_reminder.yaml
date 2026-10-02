@@ -15,6 +15,9 @@ blueprint:
     The notification disappears from every phone as soon as the dose is given,
     in the notification or anywhere else, so nobody gives it twice. Without an
     answer it reminds again until the dose is given.
+
+
+    Step-by-step setup: https://krak3n22.github.io/ha-pet-care/guide.html#reminders
   domain: automation
   source_url: https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml
   homeassistant:
