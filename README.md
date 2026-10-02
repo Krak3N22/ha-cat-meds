@@ -21,11 +21,13 @@
   <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=Krak3N22&repository=ha-pet-care&category=integration"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open in HACS"></a>
 </p>
 
-<p align="center"><a href="https://krak3n22.github.io/ha-pet-care/">Website</a> · <a href="#install">Install</a> · <a href="#setup">Setup</a> · <a href="#reminders">Reminders</a> · <a href="#actions">Actions</a></p>
+<p align="center"><a href="https://krak3n22.github.io/ha-pet-care/">Website</a> · <a href="https://krak3n22.github.io/ha-pet-care/guide.html">Guide (EN/SV)</a> · <a href="#install">Install</a> · <a href="#setup">Setup</a> · <a href="#reminders">Reminders</a> · <a href="#actions">Actions</a></p>
 
 ---
 
 ## Features
+
+> **New here?** The [step-by-step guide](https://krak3n22.github.io/ha-pet-care/guide.html) (English and Swedish) walks through everyday use: giving doses, undo, logging afterwards, refills, skipping and reminders.
 
 - 💊 **Medications:** a *Give dose* button, when it was last given and **by whom**, when it's due next, and an alert when it's overdue.
 - 📈 **Measurements:** log values such as weekly blood glucose or weight and get a history graph with reminders.

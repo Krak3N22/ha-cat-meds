@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pet Care guide</title>
+<meta name="description" content="How to use Pet Care for Home Assistant day to day: giving doses, undo, logging afterwards, refills, skipping and reminders.">
+<meta property="og:title" content="Pet Care guide">
+<meta property="og:image" content="https://krak3n22.github.io/ha-pet-care/icon.png">
+<link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>
+  // Pick the language before the page draws, so it doesn't flash.
+  (function () {
+    var lang = null;
+    try { lang = localStorage.getItem("pet-care-lang"); } catch (e) {}
+    if (lang !== "en" && lang !== "sv") {
+      lang = (navigator.language || "").toLowerCase().indexOf("sv") === 0 ? "sv" : "en";
+    }
+    document.documentElement.setAttribute("data-lang", lang);
+    document.documentElement.lang = lang;
+  })();
+</script>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="icon.png" alt="">Pet Care</a>
+    <div class="right">
+      <ul>
+        <li><a href="index.html"><span lang="en">Home</span><span lang="sv">Start</span></a></li>
+        <li><a href="https://github.com/Krak3N22/ha-pet-care">GitHub</a></li>
+      </ul>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" data-lang="sv" aria-pressed="false">SV</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="guide-hero">
+  <div class="wrap">
+    <div class="kicker" lang="en">Guide</div>
+    <div class="kicker" lang="sv">Guide</div>
+    <h1 lang="en">How to use <span class="gradient-text">Pet Care</span></h1>
+    <h1 lang="sv">Så använder du <span class="gradient-text">Pet Care</span></h1>
+    <p class="lead" lang="en">Everyday tasks, one at a time. This assumes Pet Care is installed and you've added a pet with a medication or a measurement. If not, start with <a href="index.html#install">Install</a>.</p>
+    <p class="lead" lang="sv">Vardagens sysslor, en i taget. Guiden utgår från att Pet Care är installerat och att du har lagt till ett djur med en medicin eller mätning. Annars börjar du med <a href="index.html#install">Installera</a>.</p>
+  </div>
+</header>
+
+<main class="wrap guide">
+  <aside class="toc">
+    <ol lang="en">
+      <li><a href="#find">Find everything</a></li>
+      <li><a href="#give">Give a dose</a></li>
+      <li><a href="#twice">"Already given"</a></li>
+      <li><a href="#undo">Pressed by mistake</a></li>
+      <li><a href="#afterwards">Forgot to press</a></li>
+      <li><a href="#skip">Skip a dose</a></li>
+      <li><a href="#measure">Log a measurement</a></li>
+      <li><a href="#stock">Stock and refills</a></li>
+      <li><a href="#reminders">Reminders</a></li>
+      <li><a href="#dashboard">Dashboard</a></li>
+      <li><a href="#settings">Change settings</a></li>
+      <li><a href="#history">History</a></li>
+      <li><a href="#trouble">Troubleshooting</a></li>
+    </ol>
+    <ol lang="sv">
+      <li><a href="#find">Hitta allt</a></li>
+      <li><a href="#give">Ge en dos</a></li>
+      <li><a href="#twice">"Redan given"</a></li>
+      <li><a href="#undo">Tryckte fel</a></li>
+      <li><a href="#afterwards">Glömde trycka</a></li>
+      <li><a href="#skip">Hoppa över en dos</a></li>
+      <li><a href="#measure">Logga en mätning</a></li>
+      <li><a href="#stock">Lager och påfyllning</a></li>
+      <li><a href="#reminders">Påminnelser</a></li>
+      <li><a href="#dashboard">Kontrollpanel</a></li>
+      <li><a href="#settings">Ändra inställningar</a></li>
+      <li><a href="#history">Historik</a></li>
+      <li><a href="#trouble">Felsökning</a></li>
+    </ol>
+  </aside>
+
+  <div>
+    <section class="task" id="find">
+      <h2><span class="e">🧭</span><span lang="en">Find everything</span><span lang="sv">Hitta allt</span></h2>
+      <div lang="en">
+        <p>Each pet is a device, and each medication or measurement is its own device under it, for example <i>Freja Inhaler</i>.</p>
+        <ol>
+          <li>Go to <span class="ui">Settings → Devices &amp; services → Pet Care</span>.</li>
+          <li>Open the medication's device. <span class="ui">Controls</span> has the buttons, <span class="ui">Sensors</span> shows the status, and <span class="ui">Configuration</span> has <i>Undo latest</i>.</li>
+        </ol>
+        <div class="tip"><b>Tip:</b> put it on a dashboard so you don't have to dig. See <a href="#dashboard">Dashboard</a>.</div>
+      </div>
+      <div lang="sv">
+        <p>Varje djur är en enhet, och varje medicin eller mätning är en egen enhet under djuret, till exempel <i>Freja Inhalator</i>.</p>
+        <ol>
+          <li>Gå till <span class="ui">Inställningar → Enheter och tjänster → Pet Care</span>.</li>
+          <li>Öppna medicinens enhet. Under <span class="ui">Kontroller</span> finns knapparna, <span class="ui">Sensorer</span> visar läget och under <span class="ui">Konfiguration</span> finns <i>Ångra senaste</i>.</li>
+        </ol>
+        <div class="tip"><b>Tips:</b> lägg den på en kontrollpanel så slipper du leta. Se <a href="#dashboard">Kontrollpanel</a>.</div>
+      </div>
+    </section>
+
+    <section class="task" id="give">
+      <h2><span class="e">💊</span><span lang="en">Give a dose</span><span lang="sv">Ge en dos</span></h2>
+      <div lang="en">
+        <ol>
+          <li>Give the medicine.</li>
+          <li>Press <span class="ui">Give dose</span>.</li>
+        </ol>
+        <p>The dose is logged with your name and the time. <i>Last given</i>, <i>Last given by</i> and <i>Next due</i> update, the stock counts down and <i>Overdue</i> turns off.</p>
+        <div class="tip"><b>Good to know:</b> a dose given up to 2 hours before the scheduled time counts for that time.</div>
+      </div>
+      <div lang="sv">
+        <ol>
+          <li>Ge medicinen.</li>
+          <li>Tryck på <span class="ui">Ge dos</span>.</li>
+        </ol>
+        <p>Dosen loggas med ditt namn och tiden. <i>Senast given</i>, <i>Senast given av</i> och <i>Nästa gång</i> uppdateras, lagret räknas ner och <i>Försenad</i> slås av.</p>
+        <div class="tip"><b>Bra att veta:</b> en dos som ges upp till 2 timmar före utsatt tid räknas för den tiden.</div>
+      </div>
+    </section>
+
+    <section class="task" id="twice">
+      <h2><span class="e">🛡️</span><span lang="en">"Already given"</span><span lang="sv">"Redan given"</span></h2>
+      <div lang="en">
+        <p>If someone gave a dose recently (within 2 hours by default), pressing <span class="ui">Give dose</span> shows a message like <i>"Inhaler was already given at 16:46 by Alex"</i>, and nothing is logged.</p>
+        <ul>
+          <li><b>It was already given:</b> do nothing.</li>
+          <li><b>You really meant to give another dose:</b> press <span class="ui">Give dose</span> again within 30 seconds.</li>
+        </ul>
+        <div class="tip"><b>Change it:</b> the time window is a setting on the medication. 0 turns the warning off. See <a href="#settings">Change settings</a>.</div>
+      </div>
+      <div lang="sv">
+        <p>Om någon nyss gav en dos (som standard inom 2 timmar) visar <span class="ui">Ge dos</span> ett meddelande som <i>"Inhalator gavs redan kl. 16:46 av Alex"</i>, och inget loggas.</p>
+        <ul>
+          <li><b>Den var redan given:</b> gör ingenting.</li>
+          <li><b>Du ville verkligen ge en dos till:</b> tryck <span class="ui">Ge dos</span> igen inom 30 sekunder.</li>
+        </ul>
+        <div class="tip"><b>Ändra:</b> tidsfönstret är en inställning på medicinen. 0 stänger av varningen. Se <a href="#settings">Ändra inställningar</a>.</div>
+      </div>
+    </section>
+
+    <section class="task" id="undo">
+      <h2><span class="e">↩️</span><span lang="en">Pressed by mistake</span><span lang="sv">Tryckte fel</span></h2>
+      <div lang="en">
+        <ol>
+          <li>Open the medication's device.</li>
+          <li>Under <span class="ui">Configuration</span>, press <span class="ui">Undo latest</span>.</li>
+        </ol>
+        <p>This removes whatever was logged last (a dose, measurement or skip) from the last 24 hours, and puts the stock back. The undo shows in the logbook, so nothing disappears without a trace.</p>
+      </div>
+      <div lang="sv">
+        <ol>
+          <li>Öppna medicinens enhet.</li>
+          <li>Under <span class="ui">Konfiguration</span>, tryck <span class="ui">Ångra senaste</span>.</li>
+        </ol>
+        <p>Då tas det som loggades senast (en dos, mätning eller överhoppning) från de senaste 24 timmarna bort, och lagret läggs tillbaka. Ångringen syns i loggboken, så inget försvinner spårlöst.</p>
+      </div>
+    </section>
+
+    <section class="task" id="afterwards">
+      <h2><span class="e">🕒</span><span lang="en">Forgot to press</span><span lang="sv">Glömde trycka</span></h2>
+      <div lang="en">
+        <p>Log the dose at the time it was actually given:</p>
+        <ol>
+          <li>Go to <span class="ui">Settings → Developer tools → Actions</span>.</li>
+          <li>Choose <span class="ui">Pet Care: Give dose</span>, pick the medication's <i>Give dose</i> button and set <span class="ui">Given at</span>.</li>
+          <li>Press <span class="ui">Perform action</span>.</li>
+        </ol>
+        <div class="tip"><b>Easier for everyone:</b> make a script once and put it on the dashboard. Home Assistant asks for the time when you run it.</div>
+        <pre><code>alias: Inhaler given earlier
+fields:
+  given_at:
+    name: Given at
+    required: true
+    selector:
+      datetime:
+sequence:
+  - action: pet_care.give_dose
+    target:
+      entity_id: button.freja_inhaler_give_dose
+    data:
+      given_at: "{{ given_at }}"</code></pre>
+        <p>Replace <code>button.freja_inhaler_give_dose</code> with your button. You'll find its entity ID in the button's settings. Measurements work the same way with <code>pet_care.log_measurement</code> and <code>measured_at</code>.</p>
+      </div>
+      <div lang="sv">
+        <p>Logga dosen vid den tid den faktiskt gavs:</p>
+        <ol>
+          <li>Gå till <span class="ui">Inställningar → Utvecklarverktyg → Åtgärder</span>.</li>
+          <li>Välj <span class="ui">Pet Care: Ge dos</span>, välj medicinens <i>Ge dos</i>-knapp och fyll i <span class="ui">Gavs</span>.</li>
+          <li>Tryck <span class="ui">Utför åtgärd</span>.</li>
+        </ol>
+        <div class="tip"><b>Enklare för alla:</b> gör ett skript en gång och lägg det på kontrollpanelen. Home Assistant frågar efter tiden när du kör det.</div>
+        <pre><code>alias: Inhalator given tidigare
+fields:
+  given_at:
+    name: Gavs
+    required: true
+    selector:
+      datetime:
+sequence:
+  - action: pet_care.give_dose
+    target:
+      entity_id: button.freja_inhalator_ge_dos
+    data:
+      given_at: "{{ given_at }}"</code></pre>
+        <p>Byt <code>button.freja_inhalator_ge_dos</code> mot din knapp. Dess entitets-ID hittar du i knappens inställningar. Mätningar fungerar likadant med <code>pet_care.log_measurement</code> och <code>measured_at</code>.</p>
+      </div>
+    </section>
+
+    <section class="task" id="skip">
+      <h2><span class="e">⏭️</span><span lang="en">Skip a dose</span><span lang="sv">Hoppa över en dos</span></h2>
+      <div lang="en">
+        <p>For when the vet paused the medicine, or the cat simply refused.</p>
+        <ol><li>Press <span class="ui">Skip</span>.</li></ol>
+        <p>The due dose counts as handled: <i>Overdue</i> turns off and <i>Next due</i> moves on. No stock is used and it isn't shown as given. If nothing is due yet, the next upcoming dose is skipped.</p>
+      </div>
+      <div lang="sv">
+        <p>För när veterinären har pausat medicinen, eller katten helt enkelt vägrade.</p>
+        <ol><li>Tryck <span class="ui">Hoppa över</span>.</li></ol>
+        <p>Dosen som är på tur räknas som hanterad: <i>Försenad</i> slås av och <i>Nästa gång</i> flyttas fram. Inget lager används och den visas inte som given. Om inget är på tur än hoppas nästa dos över.</p>
+      </div>
+    </section>
+
+    <section class="task" id="measure">
+      <h2><span class="e">📈</span><span lang="en">Log a measurement</span><span lang="sv">Logga en mätning</span></h2>
+      <div lang="en">
+        <ol>
+          <li>Type the value in <span class="ui">Log value</span>, for example <code>6.5</code>.</li>
+          <li>Press <span class="ui">Enter</span> or tap outside the box.</li>
+        </ol>
+        <p>Click the value sensor (named like the device, e.g. <i>Phoenix Glucose</i>) to see the graph over time.</p>
+      </div>
+      <div lang="sv">
+        <ol>
+          <li>Skriv värdet i <span class="ui">Registrera värde</span>, till exempel <code>6,5</code>.</li>
+          <li>Tryck <span class="ui">Enter</span> eller tryck utanför rutan.</li>
+        </ol>
+        <p>Klicka på värdesensorn (den heter som enheten, t.ex. <i>Phoenix Blodsocker</i>) för att se grafen över tid.</p>
+      </div>
+    </section>
+
+    <section class="task" id="stock">
+      <h2><span class="e">📦</span><span lang="en">Stock and refills</span><span lang="sv">Lager och påfyllning</span></h2>
+      <div lang="en">
+        <p><i>Stock</i> counts down with every dose. <i>Days left</i> shows how long it lasts, and <i>Low stock</i> turns on when it lasts less than 7 days.</p>
+        <ul>
+          <li><b>Opened a new pack:</b> press <span class="ui">Refill</span>. It adds one pack.</li>
+          <li><b>No Refill button?</b> Set the <i>pack size</i> once, see <a href="#settings">Change settings</a>.</li>
+          <li><b>Stock is wrong:</b> type the right number straight into <span class="ui">Stock</span>.</li>
+        </ul>
+      </div>
+      <div lang="sv">
+        <p><i>I lager</i> räknas ner för varje dos. <i>Dagar kvar</i> visar hur länge det räcker, och <i>Lågt lager</i> slås på när det räcker färre än 7 dagar.</p>
+        <ul>
+          <li><b>Öppnat en ny förpackning:</b> tryck <span class="ui">Fyll på</span>. Det lägger till en förpackning.</li>
+          <li><b>Ingen Fyll på-knapp?</b> Ange <i>förpackningens storlek</i> en gång, se <a href="#settings">Ändra inställningar</a>.</li>
+          <li><b>Fel antal i lagret:</b> skriv rätt antal direkt i <span class="ui">I lager</span>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="task" id="reminders">
+      <h2><span class="e">🔔</span><span lang="en">Reminders on your phones</span><span lang="sv">Påminnelser i mobilen</span></h2>
+      <div lang="en">
+        <p>Everyone who should get reminders needs the Home Assistant app on their phone.</p>
+        <ol>
+          <li><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml">Import the dose reminder blueprint</a> and press <span class="ui">Preview</span> and then <span class="ui">Import</span>.</li>
+          <li>Go to <span class="ui">Settings → Automations &amp; scenes → Blueprints</span> and choose <i>Pet Care – dose reminder</i>.</li>
+          <li>Pick the medication's <i>Overdue</i> sensor and <i>Give dose</i> button, and the phones to notify.</li>
+          <li>Optional: change the timing, and the texts under <span class="ui">Texts</span>.</li>
+          <li>Save. Make one automation per medication.</li>
+        </ol>
+        <p>When a dose is overdue, every phone gets a notification with <b>Given</b>, <b>Snooze</b> and <b>Skip</b>. When anyone gives the dose, in the notification or in Home Assistant, the notification disappears from all phones.</p>
+        <div class="tip"><b>Test it now:</b> press <i>Undo latest</i> on today's dose so it's overdue again. The notification should arrive within a minute.</div>
+      </div>
+      <div lang="sv">
+        <p>Alla som ska få påminnelser behöver Home Assistant-appen i mobilen.</p>
+        <ol>
+          <li><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml">Importera blueprinten för dospåminnelse</a> och tryck <span class="ui">Förhandsgranska</span> och sedan <span class="ui">Importera</span>.</li>
+          <li>Gå till <span class="ui">Inställningar → Automationer och scener → Blueprints</span> och välj <i>Pet Care – dose reminder</i>.</li>
+          <li>Välj medicinens <i>Försenad</i>-sensor och <i>Ge dos</i>-knapp, och vilka mobiler som ska få notisen.</li>
+          <li>Valfritt: ändra tiderna, och texterna under <span class="ui">Texts</span>. Till exempel <i>Given</i>, <i>Om 30 min</i> och <i>Hoppa över</i>.</li>
+          <li>Spara. Gör en automation per medicin.</li>
+        </ol>
+        <p>När en dos är försenad får alla mobiler en notis med <b>Given</b>, <b>Snooza</b> och <b>Hoppa över</b>. När någon ger dosen, i notisen eller i Home Assistant, försvinner notisen från alla mobiler.</p>
+        <div class="tip"><b>Testa direkt:</b> tryck <i>Ångra senaste</i> på dagens dos så att den blir försenad igen. Notisen bör komma inom en minut.</div>
+      </div>
+    </section>
+
+    <section class="task" id="dashboard">
+      <h2><span class="e">🧩</span><span lang="en">Put it on a dashboard</span><span lang="sv">Lägg det på en kontrollpanel</span></h2>
+      <div lang="en">
+        <p>The quickest way:</p>
+        <ol>
+          <li>Open the medication's device.</li>
+          <li>Under <span class="ui">Controls</span> and <span class="ui">Sensors</span>, press <span class="ui">Add to dashboard</span>.</li>
+        </ol>
+        <p>Or add a card by hand (<span class="ui">Edit dashboard → Add card → Manual</span>) and replace the entity IDs with yours:</p>
+        <pre><code>type: entities
+title: Freja
+entities:
+  - entity: button.freja_inhaler_give_dose
+  - entity: sensor.freja_inhaler_last_given
+  - entity: sensor.freja_inhaler_last_given_by
+  - entity: sensor.freja_inhaler_next_due
+  - entity: number.freja_inhaler_stock
+  - entity: sensor.freja_inhaler_days_left</code></pre>
+      </div>
+      <div lang="sv">
+        <p>Snabbast:</p>
+        <ol>
+          <li>Öppna medicinens enhet.</li>
+          <li>Under <span class="ui">Kontroller</span> och <span class="ui">Sensorer</span>, tryck <span class="ui">Lägg till i kontrollpanel</span>.</li>
+        </ol>
+        <p>Eller lägg till ett kort för hand (<span class="ui">Redigera kontrollpanel → Lägg till kort → Manuell</span>) och byt entitets-ID:na mot dina:</p>
+        <pre><code>type: entities
+title: Freja
+entities:
+  - entity: button.freja_inhalator_ge_dos
+  - entity: sensor.freja_inhalator_senast_given
+  - entity: sensor.freja_inhalator_senast_given_av
+  - entity: sensor.freja_inhalator_nasta_gang
+  - entity: number.freja_inhalator_i_lager
+  - entity: sensor.freja_inhalator_dagar_kvar</code></pre>
+      </div>
+    </section>
+
+    <section class="task" id="settings">
+      <h2><span class="e">⚙️</span><span lang="en">Change settings</span><span lang="sv">Ändra inställningar</span></h2>
+      <div lang="en">
+        <ol>
+          <li>Go to <span class="ui">Settings → Devices &amp; services → Pet Care</span>.</li>
+          <li>Find the medication or measurement under the pet, open its <span class="ui">⋮</span> menu and choose <span class="ui">Reconfigure</span>.</li>
+        </ol>
+        <p>Here you change the name, dose, unit, times, pack size, low stock warning and double dose window. History and stock are kept.</p>
+        <div class="tip"><b>Add more:</b> on the pet, choose <span class="ui">Add medication</span> or <span class="ui">Add measurement</span>. A new pet: <span class="ui">Add entry</span> on Pet Care.</div>
+      </div>
+      <div lang="sv">
+        <ol>
+          <li>Gå till <span class="ui">Inställningar → Enheter och tjänster → Pet Care</span>.</li>
+          <li>Hitta medicinen eller mätningen under djuret, öppna dess <span class="ui">⋮</span>-meny och välj <span class="ui">Konfigurera om</span>.</li>
+        </ol>
+        <p>Här ändrar du namn, dos, enhet, klockslag, förpackningens storlek, varning för lågt lager och tidsfönstret för dubbeldos. Historik och lager finns kvar.</p>
+        <div class="tip"><b>Lägg till fler:</b> på djuret, välj <span class="ui">Lägg till medicin</span> eller <span class="ui">Lägg till mätning</span>. Ett nytt djur: <span class="ui">Lägg till post</span> på Pet Care.</div>
+      </div>
+    </section>
+
+    <section class="task" id="history">
+      <h2><span class="e">📖</span><span lang="en">See the history</span><span lang="sv">Se historiken</span></h2>
+      <div lang="en">
+        <ul>
+          <li><b>Who did what:</b> <span class="ui">Activity</span> on the device, or the <span class="ui">Logbook</span> in the sidebar. Entries read like <i>"Freja got Inhaler from Alex"</i>.</li>
+          <li><b>Graphs:</b> <span class="ui">History</span> in the sidebar, or click a sensor.</li>
+        </ul>
+      </div>
+      <div lang="sv">
+        <ul>
+          <li><b>Vem gjorde vad:</b> <span class="ui">Aktivitet</span> på enheten, eller <span class="ui">Loggbok</span> i sidomenyn. Raderna lyder som <i>"Freja fick Inhalator av Alex"</i>.</li>
+          <li><b>Grafer:</b> <span class="ui">Historik</span> i sidomenyn, eller klicka på en sensor.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="task" id="trouble">
+      <h2><span class="e">🔧</span><span lang="en">Troubleshooting</span><span lang="sv">Felsökning</span></h2>
+      <div lang="en">
+        <ul>
+          <li><b>Names are in English though my app is in Swedish:</b> entity names follow the <i>server</i> language. Change it in <span class="ui">Settings → System → General</span> and restart.</li>
+          <li><b>"Last given by" is empty:</b> the press didn't come from a logged-in user, for example from an automation. Everyone needs their own Home Assistant user.</li>
+          <li><b>No notification arrives:</b> check the automation's <span class="ui">Traces</span>. The blueprint finds each phone by its device name, so the phone's notify action must be called <code>notify.mobile_app_&lt;device name&gt;</code>.</li>
+          <li><b>No icon:</b> integration icons show on Home Assistant 2026.3 or newer.</li>
+        </ul>
+        <p>Something else? <a href="https://github.com/Krak3N22/ha-pet-care/issues">Open an issue</a>.</p>
+      </div>
+      <div lang="sv">
+        <ul>
+          <li><b>Namnen är på engelska fast appen är på svenska:</b> entitetsnamn följer <i>serverns</i> språk. Ändra under <span class="ui">Inställningar → System → Allmänt</span> och starta om.</li>
+          <li><b>"Senast given av" är tom:</b> trycket kom inte från en inloggad användare, till exempel från en automation. Alla behöver en egen Home Assistant-användare.</li>
+          <li><b>Ingen notis kommer:</b> titta på automationens <span class="ui">Spårningar</span>. Blueprinten hittar varje mobil via enhetens namn, så mobilens notis-åtgärd måste heta <code>notify.mobile_app_&lt;enhetens namn&gt;</code>.</li>
+          <li><b>Ingen ikon:</b> integrationsikoner visas i Home Assistant 2026.3 eller nyare.</li>
+        </ul>
+        <p>Något annat? <a href="https://github.com/Krak3N22/ha-pet-care/issues">Skapa ett ärende</a>.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Pet Care · <a href="https://github.com/Krak3N22/ha-pet-care/blob/main/LICENSE">MIT</a> · <span lang="en">Not a medical device; follow your vet's advice.</span><span lang="sv">Inte en medicinteknisk produkt; följ veterinärens råd.</span></span>
+    <span><a href="index.html"><span lang="en">Home</span><span lang="sv">Start</span></a> · <a href="https://github.com/Krak3N22/ha-pet-care">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var buttons = document.querySelectorAll(".lang-switch button");
+    function show(lang) {
+      root.setAttribute("data-lang", lang);
+      root.lang = lang;
+      buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
+      try { localStorage.setItem("pet-care-lang", lang); } catch (e) {}
+    }
+    buttons.forEach(function (b) { b.addEventListener("click", function () { show(b.dataset.lang); }); });
+    show(root.getAttribute("data-lang"));
+  })();
+</script>
+</body>
+</html>
