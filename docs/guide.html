@@ -277,11 +277,11 @@ sequence:
           <li><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml">Import the dose reminder blueprint</a> and press <span class="ui">Preview</span> and then <span class="ui">Import</span>.<br>
             <small>Link not working? In Home Assistant, go to <span class="ui">Settings → Automations &amp; scenes → Blueprints → Import blueprint</span> and paste <code>https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml</code>.</small></li>
           <li>Go to <span class="ui">Settings → Automations &amp; scenes → Blueprints</span> and choose <i>Pet Care – dose reminder</i>.</li>
-          <li>Pick the medication's <i>Overdue</i> sensor and <i>Give dose</i> button, and the phones to notify.</li>
+          <li>Pick the <i>Overdue</i> sensor of every medication to remind about, and the phones to notify.</li>
           <li>Optional: change the timing, and the texts under <span class="ui">Texts</span>.</li>
-          <li>Save. Make one automation per medication.</li>
+          <li>Save. One automation covers all the medications you picked. Each gets its own notification.</li>
         </ol>
-        <p>When a dose is overdue, every phone gets a notification with <b>Given</b>, <b>Snooze</b> and <b>Skip</b>. When anyone gives the dose, in the notification or in Home Assistant, the notification disappears from all phones.</p>
+        <p>When a dose is overdue, every phone gets a notification with <b>Given</b>, <b>Snooze</b> and <b>Skip</b>. <i>Snooze</i> hides it until the next reminder (every 30 minutes by default). When anyone gives the dose, in the notification or in Home Assistant, the notification disappears from all phones.</p>
         <div class="tip"><b>Test it now:</b> press <i>Undo latest</i> on today's dose so it's overdue again. The notification should arrive within a minute.</div>
       </div>
       <div lang="sv">
@@ -290,11 +290,11 @@ sequence:
           <li><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FKrak3N22%2Fha-pet-care%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fpet_care%2Fdose_reminder.yaml">Importera blueprinten för dospåminnelse</a> och tryck <span class="ui">Förhandsgranska</span> och sedan <span class="ui">Importera</span>.<br>
             <small>Fungerar inte länken? I Home Assistant, gå till <span class="ui">Inställningar → Automationer och scener → Blueprints → Importera blueprint</span> och klistra in <code>https://github.com/Krak3N22/ha-pet-care/blob/main/blueprints/automation/pet_care/dose_reminder.yaml</code>.</small></li>
           <li>Gå till <span class="ui">Inställningar → Automationer och scener → Blueprints</span> och välj <i>Pet Care – dose reminder</i>.</li>
-          <li>Välj medicinens <i>Försenad</i>-sensor och <i>Ge dos</i>-knapp, och vilka mobiler som ska få notisen.</li>
-          <li>Valfritt: ändra tiderna, och texterna under <span class="ui">Texts</span>. Till exempel <i>Given</i>, <i>Om 30 min</i> och <i>Hoppa över</i>.</li>
-          <li>Spara. Gör en automation per medicin.</li>
+          <li>Välj <i>Försenad</i>-sensorn för varje medicin som ska påminnas om, och vilka mobiler som ska få notisen.</li>
+          <li>Valfritt: ändra tiderna, och texterna under <span class="ui">Texts</span>. Till exempel <i>Given</i>, <i>Senare</i> och <i>Hoppa över</i>.</li>
+          <li>Spara. En automation räcker för alla mediciner du valt. Varje medicin får en egen notis.</li>
         </ol>
-        <p>När en dos är försenad får alla mobiler en notis med <b>Given</b>, <b>Snooza</b> och <b>Hoppa över</b>. När någon ger dosen, i notisen eller i Home Assistant, försvinner notisen från alla mobiler.</p>
+        <p>När en dos är försenad får alla mobiler en notis med <b>Given</b>, <b>Snooza</b> och <b>Hoppa över</b>. <i>Snooza</i> döljer den till nästa påminnelse (som standard var 30:e minut). När någon ger dosen, i notisen eller i Home Assistant, försvinner notisen från alla mobiler.</p>
         <div class="tip"><b>Testa direkt:</b> tryck <i>Ångra senaste</i> på dagens dos så att den blir försenad igen. Notisen bör komma inom en minut.</div>
       </div>
     </section>
