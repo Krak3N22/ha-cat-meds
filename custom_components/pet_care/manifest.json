@@ -4,7 +4,7 @@
   "codeowners": ["@Krak3N22"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/Krak3N22/ha-pet-care",
+  "documentation": "https://krak3n22.github.io/ha-pet-care/guide.html",
   "integration_type": "hub",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/Krak3N22/ha-pet-care/issues",
